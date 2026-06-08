@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="628" viewBox="0 0 1200 628">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#0b4f6c"/>
+    </linearGradient>
+    <style>
+      .bg { fill: url(#g1); }
+      .title { font-family: Inter, Arial, sans-serif; font-size:44px; font-weight:700; fill:#fff }
+      .subtitle { font-family: Inter, Arial, sans-serif; font-size:20px; fill:#dceaf0 }
+      .pill { fill:#062433; opacity:0.6; }
+      .badge { font-family: Inter, Arial, sans-serif; font-size:16px; fill:#fff }
+      .small { font-family: Inter, Arial, sans-serif; font-size:14px; fill:#cfe9f5 }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="628" rx="16"/>
+
+  <g transform="translate(72,72)">
+    <text class="title">base_ai_project</text>
+    <text class="subtitle" y="48">Template didático: Kotlin + Spring Boot + Agents (PO · Backend · QA · SRE)</text>
+
+    <g transform="translate(0,110)">
+      <rect class="pill" width="540" height="44" rx="10"/>
+      <text class="badge" x="18" y="30">Gradle Wrapper</text>
+      <rect class="pill" x="200" width="340" height="44" rx="10"/>
+      <text class="badge" x="218" y="30">Flyway · H2</text>
+    </g>
+
+    <g transform="translate(0,180)">
+      <text class="small">• Personas prontas: PO → gera backlog e histórias técnicas</text>
+      <text class="small" y="28">• Backend → sugestões de modelagem, endpoints e dúvidas técnicas</text>
+      <text class="small" y="56">• QA → gera cenários de teste e critérios de aceitação</text>
+    </g>
+
+    <g transform="translate(0,260)">
+      <rect x="0" y="0" width="640" height="120" rx="12" fill="#062433" opacity="0.25" />
+      <text class="small" x="18" y="28">Clone + rodar em 3 passos</text>
+      <text class="small" x="18" y="56">git clone https://github.com/fernandoericofilho/base_ai_project</text>
+      <text class="small" x="18" y="84">./gradlew clean build && ./bootstrap.sh --run</text>
+    </g>
+
+    <g transform="translate(720,120)">
+      <rect width="360" height="240" rx="12" fill="#ffffff22" />
+      <text class="small" x="18" y="28">Agentes (exemplos)</text>
+      <text class="small" x="18" y="56">• PO</text>
+      <text class="small" x="18" y="80">• Backend</text>
+      <text class="small" x="18" y="104">• QA</text>
+      <text class="small" x="18" y="128">• TechLead</text>
+      <text class="small" x="18" y="152">• SRE</text>
+    </g>
+
+    <g transform="translate(0,420)">
+      <text class="small">Acelerado com GitHub Copilot — prototipagem rápida, revisão humana obrigatória</text>
+    </g>
+
+  </g>
+</svg>
+
