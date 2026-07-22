@@ -36,7 +36,7 @@ Toda alteração de lógica de negócio em uma classe de Service ou Repository E
 
 Isso não é opcional — é requisito de build. Se o repositório tiver um hook ou gate de CI que rejeite commits sem teste correspondente, respeitá-lo sempre.
 
-Ver `TESTING_RULE.md` na raiz do repositório para o guia completo desta disciplina.
+Ver `docs/guides/TESTING_RULE.md` para o guia completo desta disciplina.
 
 ### Fluxo obrigatório: red → green → commit (TDD)
 

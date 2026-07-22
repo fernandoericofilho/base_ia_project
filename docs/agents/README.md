@@ -4,7 +4,7 @@ Este documento contém tudo que você precisa saber para usar agents IA para rev
 
 ## O que são Agents?
 
-Agents são **personas IA configuradas** (arquivos em `agents/`) que representam diferentes papéis em um time de engenharia:
+Agents são **personas IA configuradas** (arquivos em `.claude/agents/`, também usáveis como subagents reais do Claude Code via `agentType`) que representam diferentes papéis em um time de engenharia:
 - Backend Engineer
 - QA Engineer
 - DBA
@@ -154,7 +154,7 @@ Se RAG for proposto, indique:
 
 Todos os agents em arquivo separado:
 ```
-agents/
+.claude/agents/
 ├── backend.agent.md
 ├── techlead.agent.md
 ├── po.agent.md
@@ -166,7 +166,7 @@ agents/
 └── ai.agent.md
 ```
 
-Cada arquivo contém a jornada completa, prioridades e critérios de decisão do agent.
+Cada arquivo contém a jornada completa, prioridades e critérios de decisão do agent, e é utilizável diretamente como subagent do Claude Code (`agentType: "backend"`, etc.).
 
 ---
 

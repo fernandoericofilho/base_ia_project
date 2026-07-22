@@ -272,7 +272,7 @@ fun toEntity(dto: HelloDTO): GreetingRecord =
 
 ## Agents (Code Review)
 
-Disponível em `agents/` para orientar revisões:
+Disponível em `.claude/agents/` para orientar revisões (também usáveis como subagents reais do Claude Code via `agentType`):
 
 - **backend.agent.md** — Kotlin, Spring, design patterns
 - **qa.agent.md** — Testes e casos de borda

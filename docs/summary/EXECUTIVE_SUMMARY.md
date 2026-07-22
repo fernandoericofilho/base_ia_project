@@ -237,7 +237,7 @@ cat ANALYSIS_AND_IMPROVEMENTS.md
 1. **Abra**: `DEVELOPER_GUIDE.md`
 2. **Rode**: `./gradlew clean build`
 3. **Implemente**: Próximo feature com padrões novos
-4. **Use**: Agents em `agents/` para code review
+4. **Use**: Agents em `.claude/agents/` para code review
 
 ---
 
