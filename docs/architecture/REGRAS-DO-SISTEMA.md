@@ -45,7 +45,7 @@ transição) assim que ela existir — nunca deixe o código divergir do que est
 
 Escreva aqui as convenções de migration, nomenclatura de colunas e colunas de auditoria padrão assim que elas
 existirem — nunca deixe o código divergir do que está escrito aqui. Detalhe de schema propriamente dito (tabelas,
-colunas, índices) vive em `docs/data/SCHEMA-DO-BANCO.md`, não aqui.
+colunas, índices) vive em `docs/data/SCHEMA.md`, não aqui.
 
 ---
 

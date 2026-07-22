@@ -1,6 +1,6 @@
 # 🔴🔥🟡🟢 Backlog TODO
 
-Itens refinados (via `/refine` e o agente `po.agent.md`) que ainda **faltam**
+Itens refinados (via `/refine` e o agente `.claude/agents/po.agent.md`) que ainda **faltam**
 implementar, um arquivo por área de domínio (ex.: `tarefas.md`, `usuarios.md`).
 
 Prioridades sugeridas: 🔴 CRÍTICO (bloqueia release) · 🔥 ALTA (sprint atual) ·

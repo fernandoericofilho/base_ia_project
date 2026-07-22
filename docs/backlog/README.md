@@ -14,7 +14,7 @@ docs/backlog/
 
 ## 🎯 Como usar
 
-1. Antes de pedir uma feature nova, rode `/refine` — o Product Owner (`po.agent.md`)
+1. Antes de pedir uma feature nova, rode `/refine` — o Product Owner (`.claude/agents/po.agent.md`)
    transforma o pedido em objetivo, história, critérios de aceite, escopo e riscos
    **antes** de qualquer código ser escrito.
 2. O resultado do refino vira um arquivo em `todo/{area}.md` (ou um arquivo de épico

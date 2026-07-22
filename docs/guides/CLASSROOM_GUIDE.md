@@ -3,7 +3,7 @@
 Objetivo: localizar rapidamente os artefatos do projeto-modelo e seguir um fluxo mínimo para exercícios em sala.
 
 Onde procurar
-- Código didático: `src/main/kotlin/com/base_project/modelo/` (Controller, DTO, Mapper, Service, Entity, Repository)
+- Código didático: `src/main/kotlin/com/base/` (Controller, DTO, Mapper, Service, Entity, Repository)
 - Migrations: `src/main/resources/db/migration/` (Flyway)
 - Configuração (H2 por padrão): `src/main/resources/application.yml`
 - Script de execução e testes: `bootstrap.sh`
@@ -16,7 +16,7 @@ Fluxo mínimo para um exercício (20–30 min)
 1. Criar branch: `git checkout -b aula/NOME-SOBRENOME`  
 2. Implementar mudança simples (ex.: validação no Service)  
 3. Rodar testes localmente: `./bootstrap.sh`  
-4. Abrir PR com o template: `.github/PULL_REQUEST_TEMPLATE.md`  
+4. Abrir PR seguindo o modelo de `docs/guides/PLAYBOOK_PR.md` (título, descrição, checklist)  
 5. Usar agents para revisão: copiar um prompt de `docs/agents/README.md` e executar (em sala, o instrutor, `/review`, ou a ferramenta de LLM)  
 6. Corrigir, rodar `./bootstrap.sh` novamente e merge quando OK
 
