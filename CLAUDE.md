@@ -81,6 +81,16 @@ hard defaults; only relax one if the new project has a documented reason to.
   `ObjectOptimisticLockingFailureException` (or equivalent for the stack in use).
 - **Idempotency keys** for any "create" operation that could be retried by a client or a retry policy (payments,
   orders, external-side-effect calls) — look up by key before creating; return the cached result if found.
+- **Non-transactional retry facade for concurrent writes** — for any write that can hit optimistic-locking conflicts
+  under real concurrency (payments, balance updates), separate a thin non-transactional facade that owns the retry
+  policy from an inner service whose methods run in a fresh transaction per attempt (e.g. Spring's
+  `Propagation.REQUIRES_NEW`) — retrying inside the same transaction that just failed is the usual way this goes
+  wrong. See `backend.agent.md` for the implementation pattern; `techlead.agent.md` reviews for its presence.
+- **Terminal-state guard on domain entities** — any entity with a "closed"/terminal status (settled, cancelled,
+  archived) needs one single guard checked by every write path, throwing a domain exception mapped to 422, not a
+  duplicated `if` per service method. Reopening the entity must remain possible; the guard blocks business writes,
+  not the status transition itself. See `backend.agent.md` for the implementation pattern; `techlead.agent.md`
+  reviews for its presence.
 - **LAZY loading everywhere** — every `@ManyToOne`/`@OneToOne` (or ORM equivalent) uses lazy fetch. Never eager by
   default.
 - **Coverage floor enforced by the build** — pick a number appropriate to the project (this template's own build

@@ -111,6 +111,7 @@ Priorizar:
 * Contratos claros e explícitos (schema/OpenAPI/proto conforme a stack)
 * Compatibilidade retroativa — mudanças breaking exigem nova versão, nunca alteração silenciosa de contrato existente
 * Reuso de endpoints/contratos já existentes antes de criar novos
+* Todo endpoint novo exige (a) anotação OpenAPI/Swagger se a stack suportar, e (b) uma request correspondente em `docs/postman/`, para que a API seja descobrível sem precisar ler o código-fonte
 
 ## Banco de dados
 

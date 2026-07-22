@@ -36,6 +36,31 @@ Toda alteração de lógica de negócio em uma classe de Service ou Repository E
 
 Isso não é opcional — é requisito de build. Se o repositório tiver um hook ou gate de CI que rejeite commits sem teste correspondente, respeitá-lo sempre.
 
+Ver `TESTING_RULE.md` na raiz do repositório para o guia completo desta disciplina.
+
+### Fluxo obrigatório: red → green → commit (TDD)
+
+Sempre que mexer em lógica de negócio de Service/Repository, seguir esta sequência, sem pular etapas:
+
+1. **Identifique o cenário** que mudou ou o bug encontrado (linha/arquivo exato).
+2. **Escreva o teste ANTES de corrigir** (`// TEST-<AREA>-01: descrição do cenário e comportamento esperado`) e confirme que ele **falha (red)** rodando `./gradlew test --tests <Classe>`.
+3. **Corrija o código** apenas o suficiente para o cenário passar.
+4. **Rode o teste de novo e confirme que passa (green)**.
+5. **Rode a suíte completa** (`./gradlew test`) para garantir que nada regrediu.
+6. **Documente no commit** quais testes foram adicionados (ex.: `TEST-OVERDUE-01: pagamento parcial mantém status OVERDUE`).
+
+### Checklist antes de qualquer commit
+
+- [ ] Identifiquei o cenário que mudou
+- [ ] Criei teste unitário que simula o cenário
+- [ ] Teste falha sem a correção (red)
+- [ ] Corrigi o código
+- [ ] Teste passa com a correção (green)
+- [ ] Documentei o cenário no comentário do teste (`TEST-<AREA>-NN: ...`)
+- [ ] Rodei `./gradlew test` (ou equivalente) e tudo passou
+- [ ] Cobertura de testes >= threshold do projeto
+- [ ] Mencionei os testes no commit message
+
 ## Objetivo principal
 
 Garantir a qualidade da mudança com foco em riscos reais de negócio e tecnologia, priorizando prevenção de regressões, integridade de dados e consistência operacional.

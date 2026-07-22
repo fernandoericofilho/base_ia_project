@@ -43,9 +43,37 @@ desativado_em TIMESTAMP    NULL
 ### Valores monetários
 - Sempre `NUMERIC(19,2)` ou `NUMERIC(19,4)` (conforme precisão exigida) para valores monetários — nunca `FLOAT` ou `DOUBLE PRECISION`
 
+### Doc de schema atualizado junto com a migration
+- Manter um doc dedicado de schema (ex.: `docs/data/SCHEMA.md`) descrevendo tabelas, colunas, tipos e constraints atuais
+- **Atualizar esse doc no MESMO commit da migration** — nunca depois, nunca em lote no fim do épico. Se a migration muda o schema, o doc muda junto, sem exceção
+- O doc de schema é a fonte de verdade para "qual é o estado atual do banco" sem precisar ler o histórico inteiro de migrations
+- Migrations antigas nunca são reescritas para refletir mudanças posteriores — quem quiser saber o estado atual olha o doc, não a migration original
+
 ### Concorrência otimista
 - Entidades sujeitas a escrita concorrente (ex.: pedido, saldo, estoque) devem ter coluna `versao` (`@Version` no ORM)
 - Conflito de versão deve mapear para HTTP 409 na camada de serviço/controller
+- Padrão exato de coluna + entidade (usar sempre este par, não variações):
+  ```sql
+  versao BIGINT NOT NULL DEFAULT 0
+  ```
+  ```kotlin
+  @Version
+  val version: Long = 0
+  ```
+- Mappers devem propagar `version` do DTO para a entidade em toda atualização — sem isso o optimistic lock nunca detecta conflito
+- `ObjectOptimisticLockingFailureException` (ou equivalente do ORM) → HTTP 409 no exception handler global
+
+### Nomenclatura de índices e constraints
+- Chave primária: `<tabela>_pkey` (gerado automaticamente pelo Postgres na maioria dos casos)
+- Índice simples em FK ou coluna de busca: `idx_<tabela>_<coluna>`
+- Índice composto: `idx_<tabela>_<coluna1>_<coluna2>` (ordem das colunas reflete o padrão de query mais comum)
+- Unique constraint: `<tabela>_<coluna>_key` (padrão gerado) ou `uq_<tabela>_<coluna1>_<coluna2>` quando definido explicitamente
+- Índice parcial quando a query sempre filtra por uma condição fixa, ex. registros ativos ou um subconjunto de status:
+  ```sql
+  CREATE INDEX idx_pedido_vencimento_status ON pedido USING btree (data_vencimento, status)
+    WHERE ativo = true AND status IN ('PENDING', 'OVERDUE');
+  ```
+- Toda FK (`*_id`) que participa de filtro ou join recorrente deve ter índice dedicado — não depender só da constraint de FK
 
 ## Objetivo principal
 

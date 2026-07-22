@@ -41,6 +41,7 @@ Flyway · JPA/Hibernate · JUnit 5 · Mockito-Kotlin · Gradle 9.2.1
 ✅ **Arquitetura**: camadas claras (Controller → Service → Repository)
 ✅ **Error Handling**: Global `@ControllerAdvice` profissional
 ✅ **Testes**: 7 testes passando (~45% cobertura)
+✅ **Testes de integração**: `./gradlew integrationTest` sobe Postgres real via Testcontainers (requer Docker) — ver [`TESTING_RULE.md`](./TESTING_RULE.md)
 ✅ **Documentação**: Prática e detalhada em `docs/`
 ✅ **Agents IA**: 9 personas para code review
 ✅ **Build**: ✅ SUCCESS (18s)

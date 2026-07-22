@@ -1,0 +1,83 @@
+{
+  "info": {
+    "name": "base_ia_project",
+    "description": "Coleção de exemplo para o template base_ia_project. Toda nova rota REST deve ganhar uma request aqui, organizada por pasta de recurso. Ver docs/postman/README.md para a convenção completa.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Hello",
+      "item": [
+        {
+          "name": "Say Hello",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"World\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/hello",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "hello"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Task",
+      "item": [
+        {
+          "name": "Create Task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Example task\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tasks"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Task",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/tasks/1/complete",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "tasks", "1", "complete"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

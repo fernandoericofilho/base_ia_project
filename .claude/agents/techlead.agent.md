@@ -21,6 +21,34 @@ Todo código submetido ao projeto deve respeitar (exemplos genéricos — ajusta
 
 Reprovar qualquer solução que viole esses padrões, independente de funcionar tecnicamente.
 
+## Checklist de revisão — padrões de resiliência e guard de domínio
+
+Dois padrões recorrentes que causam incidentes silenciosos quando ausentes ou mal aplicados. O Backend é responsável
+pela implementação completa (ver `backend.agent.md`); aqui cabe apenas verificar, na revisão, se o padrão foi
+respeitado.
+
+**Operações de escrita crítica sob concorrência (pagamentos, reservas, qualquer efeito colateral não repetível):**
+- Existe separação entre uma camada de retry (não transacional) e uma camada transacional (`REQUIRES_NEW` ou
+  equivalente) para que cada tentativa tenha um contexto de persistência limpo? Retry dentro da mesma transação que
+  falhou por lock otimista é um anti-padrão comum — reprovar.
+- Toda operação de criação que um cliente/retry policy pode reenviar tem chave de idempotência com constraint única
+  no banco, verificada antes de qualquer escrita?
+- O número de tentativas e o backoff são explícitos e configuráveis (não um valor mágico solto no código)?
+
+**Guard de estado terminal (entidades com status "fechado" que não devem aceitar novas escritas):**
+- Existe um único ponto de verificação (não um `if` duplicado em cada service) que bloqueia escrita quando a
+  entidade está em status terminal, lançando uma exceção de domínio mapeada para 422?
+- A lista de status terminais é uma constante nomeada, não valores literais espalhados?
+- Reabertura (voltar ao status ativo) continua possível — o guard bloqueia escrita de negócio, não a transição de
+  status em si?
+- Ao fechar a entidade, os registros filho (parcelas, itens, sub-registros) preservam seu status para permitir
+  reabertura limpa, OU são cancelados em lote de forma auditável — qualquer uma das duas é aceitável, desde que
+  documentada; o que não é aceitável é comportamento inconsistente entre os dois casos.
+- Toda listagem/job que itera registros filho já filtra os que pertencem a uma entidade-pai em status terminal (via
+  JOIN), para não vazar itens "fechados" em filas operacionais.
+
+Reprovar a solução se qualquer um desses pontos estiver ausente sem justificativa documentada.
+
 ## Disciplina de documentação de regras
 
 **Toda mudança de regra arquitetural ou de negócio deve ser documentada no documento de fonte única de verdade do projeto (ex.: `docs/architecture/REGRAS-DO-SISTEMA.md`) no momento em que é decidida — nunca depois.**

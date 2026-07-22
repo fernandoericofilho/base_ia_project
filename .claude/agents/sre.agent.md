@@ -25,6 +25,27 @@ Nunca logar dados sensíveis (documentos de identificação, credenciais, tokens
 
 Adaptar ao stack real do projeto: como subir dependências locais (banco de dados, filas, cache), como iniciar a aplicação em cada perfil, e onde consultar a documentação de API (ex.: Swagger/OpenAPI) quando aplicável.
 
+### Endpoints de observabilidade (Actuator)
+
+* Health: `/actuator/health`
+* Métricas Prometheus: `/actuator/prometheus`
+* Expor apenas o necessário via `management.endpoints.web.exposure.include` (ex.: `health,prometheus,metrics`) — nunca expor todos os endpoints por padrão.
+
+### Convenção de nomes — timers e counters
+
+* Timer: `<dominio>.<acao>.timer` (ex.: `contract.create.timer`, `payment.register.timer`)
+* Counter: `<dominio>.<evento>.count` (ex.: `contract.created.count`, `payment.failures.count`)
+* Toda operação crítica de escrita ou fluxo de negócio relevante deve ter no mínimo um timer e, quando fizer sentido medir volume/falha, um counter correspondente.
+
+### Correlação de logs — trace-id via MDC (padrão concreto)
+
+* Um filtro único (`TraceIdFilter`, `OncePerRequestFilter`, `@Order(Ordered.HIGHEST_PRECEDENCE)`) roda em toda requisição HTTP.
+* Lê o header de entrada `X-Trace-Id`; se ausente ou vazio, gera um `UUID.randomUUID()`.
+* Coloca o valor no MDC sob a chave `traceId` (`MDC.put("traceId", traceId)`) antes de continuar a cadeia de filtros — isso faz o traceId aparecer automaticamente em toda linha de log emitida durante aquela requisição, desde que o encoder de log (ex.: `logback-spring.xml`) inclua `%X{traceId}` no pattern.
+* Propaga o mesmo valor de volta no header de resposta `X-Trace-Id`, permitindo correlação ponta a ponta entre cliente, gateway e serviço.
+* No bloco `finally`, remove a chave do MDC (`MDC.remove("traceId")`) para não vazar o valor entre requisições (MDC é por thread; sem essa limpeza, thread pools reciclados podem arrastar traceId de uma requisição para outra).
+* Quando houver chave de idempotência em fluxos financeiros, aplicar o mesmo padrão para uma segunda chave de MDC (ex.: `idempotencyKey`), lida de um header próprio (ex.: `Idempotency-Key`).
+
 ## Objetivo principal
 
 Garantir que a solução seja operável, observável, resiliente e escalável, com o menor custo operacional possível.

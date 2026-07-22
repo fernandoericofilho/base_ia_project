@@ -53,6 +53,47 @@ Nunca usar `ServletUriComponentsBuilder`.
 - **Nunca modificar** migration já aplicada — criar sempre `V(n+1)`
 - Colunas de auditoria obrigatórias em toda entidade: `criado_em`, `atualizado_em`, `desativado_em`, `ativo`
 
+### Retry otimista para escritas de alta concorrência
+Quando um recurso sofre escritas concorrentes (ex.: saldo de conta, parcela de contrato, estoque, contador), separar em duas classes:
+- **Facade não-transacional** — só orquestra o retry, não abre transação própria:
+  ```kotlin
+  @Service
+  class [Resource]RetryFacade(private val transactionalService: [Resource]TransactionalService) {
+      @Retryable(retryFor = [OptimisticLockingFailureException::class], maxAttempts = 3, backoff = Backoff(delay = 50))
+      fun register(...) = transactionalService.register(...)
+  }
+  ```
+- **Service transacional interno** — cada método abre uma transação nova:
+  ```kotlin
+  @Service
+  class [Resource]TransactionalService(...) {
+      @Transactional(propagation = Propagation.REQUIRES_NEW)
+      fun register(...): ResourceDTO { ... }
+  }
+  ```
+- Motivo do `REQUIRES_NEW`: se a tentativa anterior falhou com `OptimisticLockingFailureException`, a transação antiga pode estar marcada para rollback; `REQUIRES_NEW` garante que cada retry rode num contexto de persistência limpo.
+- A entidade envolvida precisa de `@Version val version: Long`.
+- O Controller injeta apenas a Facade, nunca o service transacional diretamente.
+
+### Idempotência em escritas críticas
+Toda escrita que pode ser reenviada pelo cliente (ex.: pagamento, criação de pedido, envio de notificação, cobrança) deve:
+- Exigir header `Idempotency-Key` (`@RequestHeader("Idempotency-Key") idempotencyKey: String`).
+- Antes de criar o registro, buscar por chave (`repository.findByIdempotencyKey(key)`); se encontrado, **retornar o resultado já cacheado** sem repetir a operação (nem repetir efeitos colaterais).
+- Persistir a chave em coluna `unique = true` (nome seguindo a convenção de idioma do projeto, ex.: `idempotency_key`/`chave_idempotencia`).
+- Logar o hit idempotente separado do caminho normal: `action=create_x status=idempotent id={}`.
+
+### Guard de status terminal/fechado
+Antes de qualquer escrita em um recurso, checar seu status (e o de recursos-pai relacionados) contra um conjunto de status terminais definido no service:
+```kotlin
+private val closed[Resource]Statuses = setOf(Status.SETTLED, Status.CANCELLED, Status.INACTIVE)
+if (resource.status in closed[Resource]Statuses) {
+    throw [Resource]OperationException("Recurso ${resource.id} não aceita esta operação no status ${resource.status}")
+}
+```
+- Lançar exceção de domínio própria (`[Resource]OperationException` → HTTP 422) e não persistir nada se o guard disparar.
+- Checar tanto o recurso escrito diretamente quanto entidades-pai relacionadas (ex.: parcela **e** contrato, item **e** pedido).
+- Extrair o conjunto de status fechados para uma única propriedade/constante reutilizada por todos os métodos do service que escrevem no recurso — nunca duplicar a lista em múltiplos lugares.
+
 ### Logs
 ```kotlin
 log.info("action=create_resource status=ok id={}", saved.id)
