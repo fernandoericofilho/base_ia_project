@@ -44,6 +44,28 @@ cd base_project
 
 Observação: por padrão o projeto usa H2 em memória (ver `application.yml`). Para usar PostgreSQL local, ajuste as propriedades do datasource e do Flyway.
 
+O `bootstrap.sh` já deixa o Claude Code pronto sozinho: antes de rodar os testes, ele registra o marketplace
+oficial e instala o plugin `superpowers` automaticamente (idempotente — se já estiver instalado, não faz nada; se
+o comando `claude` não existir na máquina, o passo é pulado sem quebrar o resto do script). Não precisa fazer nada
+manualmente na maioria dos casos.
+
+Se preferir (ou precisar) instalar manualmente, os comandos equivalentes são:
+
+```bash
+claude plugin marketplace add anthropics/claude-plugins-official
+claude plugin install superpowers@claude-plugins-official
+```
+
+Ou, dentro de uma sessão interativa do Claude Code:
+
+```
+/plugin marketplace add anthropics/claude-plugins-official
+/plugin install superpowers@claude-plugins-official
+```
+
+O `.claude/settings.json` deste projeto já vem com `"enabledPlugins": {"superpowers@claude-plugins-official": true}`,
+então basta o plugin estar instalado (localmente, em qualquer escopo) para os skills funcionarem.
+
 ## Testes
 
 - Execute `./gradlew test` ou use `./bootstrap.sh`.

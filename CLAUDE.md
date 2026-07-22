@@ -213,6 +213,12 @@ first few weeks.
 - **`.claude/settings.json`** — enables the `superpowers` plugin (brainstorming, TDD, systematic debugging, and
   other process skills that complement the five above). Keep it enabled; it's what makes the "always refine before
   building, always review before merging" discipline actually happen instead of being aspirational documentation.
+  Enabling it in settings only takes effect once the plugin is actually installed — `./bootstrap.sh` does this
+  automatically (idempotent, skipped silently if the `claude` CLI isn't present). Manual equivalent, if needed:
+  ```bash
+  claude plugin marketplace add anthropics/claude-plugins-official
+  claude plugin install superpowers@claude-plugins-official
+  ```
 
 ## 📋 Where to Document Each Type of Change
 
