@@ -2,6 +2,12 @@
 
 Este repositório contém um projeto-modelo didático (Hello World persistido) e um conjunto de agentes em `./agents` destinados a orientar code reviews, decisões arquiteturais e exercícios práticos.
 
+> **Atualização:** os mesmos 9 agentes agora também existem em `.claude/agents/*.agent.md` como *subagents* reais do
+> Claude Code (invocáveis por `agentType`, ex.: `backend`, `dba`, `techlead`), além de 5 *skills* prontos em
+> `.claude/skills/` (`/refine`, `/review`, `/db-review`, `/security-audit`, `/sre-check`) que os orquestram em
+> paralelo. Isso é extra — não substitui o uso didático manual descrito abaixo, que continua valendo para quem
+> quiser copiar o prompt manualmente em qualquer ferramenta. Veja a seção "Integração com Claude Code" no `README.md`.
+
 Objetivo
 - Fornecer um guia simples para alunos entenderem o fluxo Controller → DTO → Service → Entity → Repository
 - Mostrar como usar arquivos de agente como checklists e prompts para revisão de código e decisões técnicas

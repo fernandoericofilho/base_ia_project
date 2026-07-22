@@ -24,7 +24,11 @@ Request → Controller → DTO → Service → Entity → Repository
 - `src/main/resources/db/migration/` — migration Flyway inicial (V1__create_greeting_record.sql)
 - `src/main/resources/application.yml` — configuração: H2 in-memory por padrão para aulas
 - `bootstrap.sh` — script para rodar testes e opcionalmente iniciar a aplicação
-- `agents/` — agents para revisão (PO, Backend, QA, DBA, SRE, TechLead, Frontend, AI)
+- `agents/` — agents para revisão (PO, Backend, QA, DBA, SRE, TechLead, Frontend, AI), uso didático/manual
+- `.claude/agents/` — os mesmos 9 agents como subagents reais do Claude Code (`agentType: "backend"`, etc.)
+- `.claude/skills/` — 5 skills que orquestram os agents em fluxos multi-agente (`/refine`, `/review`, `/db-review`, `/security-audit`, `/sre-check`)
+- `.claude/settings.json` — habilita o plugin `superpowers` (brainstorming, TDD, debugging sistemático)
+- `CLAUDE.md` — regras obrigatórias do projeto (arquitetura, testes, naming, observabilidade) — leia e adapte antes de começar um projeto novo a partir deste template
 - `AGENTS_PROMPTS.md` — prompts prontos em português para cada agent
 - `PLAYBOOK_PR.md` — playbook de PR com checklist e fluxo para exercícios em sala
 
@@ -62,6 +66,30 @@ Observação: por padrão o projeto usa H2 em memória (ver `application.yml`). 
 ## Git e commits
 
 - O diretório `base_project` contém um repositório Git local inicializado e um commit inicial com os arquivos relevantes. `build/`, caches e IDE files estão ignorados via `.gitignore`.
+
+## Integração com Claude Code
+
+Este projeto foi enriquecido com o que funcionou de fato em produção (extraído do projeto AgioMix) para servir de
+base para qualquer projeto novo, não só para aulas:
+
+- **`CLAUDE.md`** — leia primeiro. Documenta as regras obrigatórias (arquitetura em camadas, injeção por construtor,
+  tipos numéricos corretos para valores sensíveis, soft delete, migrations backward-compatible, convenções de
+  naming, observabilidade) e, mais importante, a disciplina de **documentar toda mudança de regra imediatamente**
+  em `docs/architecture/REGRAS-DO-SISTEMA.md` — o hábito que mais evitou retrabalho no projeto de origem.
+- **`.claude/agents/*.agent.md`** — os 9 agents em formato de subagent real do Claude Code, prontos para uso via
+  `agentType`. Ajuste os nomes de domínio ao seu projeto; os princípios de engenharia já são genéricos.
+- **`.claude/skills/*/SKILL.md`** — os fluxos multi-agente que usam esses agents em paralelo:
+  - `/refine` antes de implementar qualquer feature nova
+  - `/review` antes de qualquer merge
+  - `/db-review` antes de aplicar qualquer migration
+  - `/security-audit` antes de expor algo sensível
+  - `/sre-check` depois de implementar um fluxo crítico
+- **`.claude/settings.json`** — habilita o plugin `superpowers`, que complementa os skills acima com
+  brainstorming, TDD e debugging sistemático.
+
+Ao começar um projeto novo a partir deste template: leia o `CLAUDE.md` de ponta a ponta e ajuste os detalhes
+concretos (stack, idioma, threshold de cobertura) ao novo contexto — as *formas* das regras tendem a se manter, os
+*valores* específicos são só um ponto de partida.
 
 ## Material recomendado para começar
 
