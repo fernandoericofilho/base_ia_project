@@ -66,4 +66,3 @@ case "${1:-}" in
 esac
 
 echo "action=bootstrap status=finished"
-

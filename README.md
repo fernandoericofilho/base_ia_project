@@ -1,55 +1,86 @@
-<!--
-  README do projeto-modelo (base_project)
-  Idioma: Português (PT-BR)
-  Objetivo: material didático para Controller → Service → Repository
--->
+# 🎓 Base IA Project
 
-# Projeto-modelo (base_project)
+Projeto didático para aprender **arquitetura em camadas** com **Kotlin + Spring Boot** e técnicas de **revisão de código com IA**.
 
-Este repositório é um projeto didático mínimo que ilustra a arquitetura em camadas adotada no AgioMix e serve como base para exercícios em sala de aula.
-
-## Principais objetivos
-
-- Fornecer um exemplo executável (Hello World persistido) com camadas bem definidas
-- Disponibilizar *agents* (templates de revisão) para exercícios de code review e refinamento
-- Facilitar execução local (H2 em memória) e execução automática de testes com Gradle
-
-## Fluxo didático (simplificado)
-
-Request → Controller → DTO → Service → Entity → Repository
-
-## Conteúdo do projeto
-
-- `src/main/kotlin/...` — implementação didática (Controller, DTO, Mapper, Service, Entity, Repository)
-- `src/main/resources/db/migration/` — migration Flyway inicial (V1__create_greeting_record.sql)
-- `src/main/resources/application.yml` — configuração: H2 in-memory por padrão para aulas
-- `bootstrap.sh` — script para rodar testes e opcionalmente iniciar a aplicação
-- `agents/` — agents para revisão (PO, Backend, QA, DBA, SRE, TechLead, Frontend, AI), uso didático/manual
-- `.claude/agents/` — os mesmos 9 agents como subagents reais do Claude Code (`agentType: "backend"`, etc.)
-- `.claude/skills/` — 5 skills que orquestram os agents em fluxos multi-agente (`/refine`, `/review`, `/db-review`, `/security-audit`, `/sre-check`)
-- `.claude/settings.json` — habilita o plugin `superpowers` (brainstorming, TDD, debugging sistemático)
-- `CLAUDE.md` — regras obrigatórias do projeto (arquitetura, testes, naming, observabilidade) — leia e adapte antes de começar um projeto novo a partir deste template
-- `AGENTS_PROMPTS.md` — prompts prontos em português para cada agent
-- `PLAYBOOK_PR.md` — playbook de PR com checklist e fluxo para exercícios em sala
-
-## Como executar (rápido)
-
-Abra um terminal na pasta `base_project` e execute:
+## 🚀 Quick Start (2 minutos)
 
 ```bash
-cd base_project
-./bootstrap.sh          # executa os testes (falha se houver erro)
-./bootstrap.sh --run    # executa testes e, se OK, inicia a aplicação (bootRun)
+# Clonar
+git clone <repo>
+cd base_ia_project
+
+# Compilar e rodar testes
+./gradlew clean build
+
+# Ou iniciar a aplicação
+./gradlew bootRun
 ```
 
-Observação: por padrão o projeto usa H2 em memória (ver `application.yml`). Para usar PostgreSQL local, ajuste as propriedades do datasource e do Flyway.
+App disponível em `http://localhost:8080`
 
-O `bootstrap.sh` já deixa o Claude Code pronto sozinho: antes de rodar os testes, ele registra o marketplace
-oficial e instala o plugin `superpowers` automaticamente (idempotente — se já estiver instalado, não faz nada; se
-o comando `claude` não existir na máquina, o passo é pulado sem quebrar o resto do script). Não precisa fazer nada
-manualmente na maioria dos casos.
+## 📚 Documentação
 
-Se preferir (ou precisar) instalar manualmente, os comandos equivalentes são:
+👉 **[Leia a Documentação em `docs/`](./docs/README.md)** — Índice completo com atalhos por perfil
+
+**Atalhos rápidos**:
+- 🧑‍💻 **Desenvolvedor?** Leia [`docs/guides/DEVELOPER_GUIDE.md`](./docs/guides/DEVELOPER_GUIDE.md)
+- 🤖 **Quer usar Agents?** Vá para [`docs/agents/README.md`](./docs/agents/README.md)
+- 📖 **Aula/Sala?** [`docs/guides/CLASSROOM_GUIDE.md`](./docs/guides/CLASSROOM_GUIDE.md)
+- 🔍 **Análise Técnica?** [`docs/technical/ARCHITECTURE_AND_IMPROVEMENTS.md`](./docs/technical/ARCHITECTURE_AND_IMPROVEMENTS.md)
+- ⚡ **Resumo (1 min)?** [`docs/summary/EXECUTIVE_SUMMARY.md`](./docs/summary/EXECUTIVE_SUMMARY.md)
+
+## 🛠️ Stack
+
+```
+Kotlin 1.9.24 · Spring Boot 3.4.5 · H2 (PostgreSQL Dialect)
+Flyway · JPA/Hibernate · JUnit 5 · Mockito-Kotlin · Gradle 9.2.1
+```
+
+## ✨ Destaques
+
+✅ **Arquitetura**: camadas claras (Controller → Service → Repository)
+✅ **Error Handling**: Global `@ControllerAdvice` profissional
+✅ **Testes**: 7 testes passando (~45% cobertura)
+✅ **Documentação**: Prática e detalhada em `docs/`
+✅ **Agents IA**: 9 personas para code review
+✅ **Build**: ✅ SUCCESS (18s)
+
+## 📖 Como Começar
+
+1. **Leia**: [`docs/guides/DEVELOPER_GUIDE.md`](./docs/guides/DEVELOPER_GUIDE.md) (15 min)
+2. **Rode**: `./gradlew clean build`
+3. **Code**: Siga os padrões no guide
+
+## 🤖 Agents para Code Review
+
+Todas as personas em `docs/agents/` com **prompts prontos** para copiar/colar:
+
+```bash
+cd docs/agents
+cat README.md  # Guia completo + prompts para cada agent
+```
+
+**As 9 personas**:
+Backend, TechLead, PO, QA, DBA, Architect, Frontend, SRE, AI
+
+## 🧩 Integração com Claude Code
+
+Além dos prompts manuais em `docs/agents/`, as mesmas 9 personas existem como **subagents reais do Claude Code**,
+prontos para uso via `agentType` (não é preciso copiar/colar prompt nenhum):
+
+- **`.claude/agents/*.agent.md`** — os 9 agents (Backend, Frontend, DBA, QA, SRE, TechLead, PO, Architect, AI),
+  cada um um rulebook destilado de projetos reais (extraído do AgioMix e generalizado por cada especialista).
+- **`.claude/skills/*/SKILL.md`** — 5 fluxos multi-agente que orquestram esses agents em paralelo:
+  `/refine` (antes de implementar), `/review` (antes de merge), `/db-review` (antes de aplicar migration),
+  `/security-audit` (antes de expor algo sensível), `/sre-check` (depois de um fluxo crítico).
+- **`.claude/settings.json`** — habilita o plugin `superpowers` (brainstorming, TDD, debugging sistemático).
+- **`CLAUDE.md`** — regras obrigatórias do projeto (arquitetura, testes, naming, observabilidade, e a disciplina de
+  documentar toda mudança de regra imediatamente). Leia e adapte antes de começar um projeto novo a partir deste
+  template.
+
+O `./bootstrap.sh` já deixa isso pronto sozinho: registra o marketplace oficial e instala o plugin `superpowers`
+automaticamente antes de rodar os testes (idempotente; pulado sem erro se o CLI `claude` não estiver instalado).
+Instalação manual, se precisar:
 
 ```bash
 claude plugin marketplace add anthropics/claude-plugins-official
@@ -63,61 +94,16 @@ Ou, dentro de uma sessão interativa do Claude Code:
 /plugin install superpowers@claude-plugins-official
 ```
 
-O `.claude/settings.json` deste projeto já vem com `"enabledPlugins": {"superpowers@claude-plugins-official": true}`,
-então basta o plugin estar instalado (localmente, em qualquer escopo) para os skills funcionarem.
+## 📊 Status
 
-## Testes
+| Item | Status |
+|------|--------|
+| Build | ✅ SUCCESS |
+| Testes | ✅ 7/7 passando |
+| Documentação | ✅ Completa em `docs/` |
+| Error Handling | ✅ Profissional |
+| Code Review IA | ✅ 9 agentes (manual em `docs/agents/` + subagents reais em `.claude/agents/`) |
 
-- Execute `./gradlew test` ou use `./bootstrap.sh`.
-- O projeto contém testes unitários e uma integração simples para exemplificar o fluxo.
+---
 
-## Uso dos agents em sala de aula
-
-- Os agents ficam em `base_project/agents/` e funcionam como personas para gerar checklists e prompts de revisão.
-- Leia `AGENTS_README.md` para orientações e `AGENTS_PROMPTS.md` para prompts prontos.
-- Use o `PLAYBOOK_PR.md` como roteiro para exercícios: criação de branch, implementação, execução de testes, uso dos agents e merge.
-
-## Convenções recomendadas (aplicáveis ao exercício)
-
-- Código e nomes técnicos: inglês (classes, propriedades, colunas, endpoints)
-- Documentação e comentários de domínio: português (PT-BR)
-- Injeção por construtor (constructor injection)
-- Logs estruturados (ex.: `action=... status=...`) para facilitar observabilidade
-- Configurações em `application.yml` ou variáveis de ambiente; evitar hardcode
-
-## Git e commits
-
-- O diretório `base_project` contém um repositório Git local inicializado e um commit inicial com os arquivos relevantes. `build/`, caches e IDE files estão ignorados via `.gitignore`.
-
-## Integração com Claude Code
-
-Este projeto foi enriquecido com o que funcionou de fato em produção (extraído do projeto AgioMix) para servir de
-base para qualquer projeto novo, não só para aulas:
-
-- **`CLAUDE.md`** — leia primeiro. Documenta as regras obrigatórias (arquitetura em camadas, injeção por construtor,
-  tipos numéricos corretos para valores sensíveis, soft delete, migrations backward-compatible, convenções de
-  naming, observabilidade) e, mais importante, a disciplina de **documentar toda mudança de regra imediatamente**
-  em `docs/architecture/REGRAS-DO-SISTEMA.md` — o hábito que mais evitou retrabalho no projeto de origem.
-- **`.claude/agents/*.agent.md`** — os 9 agents em formato de subagent real do Claude Code, prontos para uso via
-  `agentType`. Ajuste os nomes de domínio ao seu projeto; os princípios de engenharia já são genéricos.
-- **`.claude/skills/*/SKILL.md`** — os fluxos multi-agente que usam esses agents em paralelo:
-  - `/refine` antes de implementar qualquer feature nova
-  - `/review` antes de qualquer merge
-  - `/db-review` antes de aplicar qualquer migration
-  - `/security-audit` antes de expor algo sensível
-  - `/sre-check` depois de implementar um fluxo crítico
-- **`.claude/settings.json`** — habilita o plugin `superpowers`, que complementa os skills acima com
-  brainstorming, TDD e debugging sistemático.
-
-Ao começar um projeto novo a partir deste template: leia o `CLAUDE.md` de ponta a ponta e ajuste os detalhes
-concretos (stack, idioma, threshold de cobertura) ao novo contexto — as *formas* das regras tendem a se manter, os
-*valores* específicos são só um ponto de partida.
-
-## Material recomendado para começar
-
-1. `AGENTS_README.md` — visão geral dos agents e roteiro de aula
-2. `PLAYBOOK_PR.md` — roteiro de PR e checklist para exercícios
-3. `AGENTS_PROMPTS.md` — prompts prontos para cada agent
-4. `src/main/kotlin/com/base_project/modelo/` — código didático (HelloController, HelloService, Mapper, Entity)
-
-
+**Tudo em `docs/` — confira [`docs/README.md`](./docs/README.md) para navegação completa!** 📚

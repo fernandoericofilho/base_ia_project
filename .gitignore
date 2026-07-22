@@ -31,4 +31,3 @@ out/
 
 # Claude Code local overrides (personal, not shared)
 .claude/settings.local.json
-
