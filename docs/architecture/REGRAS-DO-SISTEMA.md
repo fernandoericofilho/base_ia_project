@@ -23,36 +23,70 @@ escrito aqui.
 
 ### 2.1 Guards de domínio (estado terminal / bloqueio de escrita)
 
-Escreva aqui todo guard que bloqueia escrita em entidades com status terminal (ex.: contrato fechado, pedido
-cancelado) assim que ele existir — nunca deixe o código divergir do que está escrito aqui.
+**Task** (2026-07-23): `complete()` e `deactivate()` em `TaskService` são bloqueados se a Task já estiver em
+status terminal (`DONE` ou `CANCELLED`). O guard é um único ponto de checagem — `TaskService.requireNotClosed()`
+— chamado por ambos os métodos, nunca duplicado como `if` solto em cada um. Lança `TaskOperationException` → 422.
+Qualquer novo write path adicionado a `TaskService` (ex.: um futuro `reopen()` ou `rename()`) deve chamar esse
+mesmo guard em vez de reimplementar a checagem.
 
 ### 2.2 Idempotência e isolamento transacional
 
-Escreva aqui toda regra de idempotência (chaves, constraints) e de isolamento transacional (retry, propagação de
-transação) para operações de escrita crítica assim que ela existir — nunca deixe o código divergir do que está
-escrito aqui.
+**Task** (2026-07-23): `POST /api/v1/tasks` **não** usa chave de idempotência. Decisão explícita, não omissão —
+criar uma Task não é uma operação de alto risco de retry como pagamento/estorno (reenviar o mesmo POST duas vezes
+por engano só cria uma segunda Task, sem efeito colateral financeiro ou de negócio grave). Se uma feature futura
+tiver semântica de retry crítico, ela precisa de chave de idempotência própria — não herdar a ausência do Task
+como padrão.
+
+**Concorrência otimista**: `Task.version` (`@Version`) protege `complete()`/`deactivate()` contra escrita
+concorrente. Conflito de versão (`ObjectOptimisticLockingFailureException`) é mapeado para HTTP 409 em
+`GlobalExceptionHandler.handleOptimisticLockingException()`. Toda entidade que sofre escrita concorrente
+(atualização de status, saldo, etc.) deve ter `@Version` e esse mapeamento já cobre qualquer conflito dela — não
+é necessário um handler por entidade.
 
 ---
 
 ## 3. CICLO DE VIDA DOS STATUS
 
-Escreva aqui cada máquina de estados do domínio (status possíveis, transições permitidas, quem pode disparar cada
-transição) assim que ela existir — nunca deixe o código divergir do que está escrito aqui.
+**Task** (2026-07-23): `TaskStatus` tem três valores — `OPEN` (inicial, toda Task nasce assim), `DONE`, `CANCELLED`.
+Transições implementadas: `OPEN → DONE` via `POST /api/v1/tasks/{id}/complete`. Não há endpoint que produza
+`CANCELLED` hoje — o valor existe no enum e é tratado como terminal pelo guard (seção 2.1), mas nenhum fluxo do
+sistema o atribui ainda; é reservado para uma operação de cancelamento futura. `DONE` e `CANCELLED` são terminais:
+nenhuma transição sai deles (guard de 2.1 bloqueia). Desativação (`DELETE /api/v1/tasks/{id}`, soft delete) é
+ortogonal ao `status` — não muda o status, só marca `active = false`.
 
 ---
 
 ## 4. BANCO DE DADOS
 
-Escreva aqui as convenções de migration, nomenclatura de colunas e colunas de auditoria padrão assim que elas
-existirem — nunca deixe o código divergir do que está escrito aqui. Detalhe de schema propriamente dito (tabelas,
-colunas, índices) vive em `docs/data/SCHEMA.md`, não aqui.
+Convenções de migration, nomenclatura e checklist completo vivem em `docs/data/SCHEMA.md` (que também descreve o
+schema atual tabela por tabela) — este documento não duplica aquele conteúdo.
+
+**Dois caminhos de execução** (2026-07-23):
+- **Default (dia a dia / aula)**: H2 em memória, `application.yml`, sem dependência externa.
+- **Postgres real (opcional)**: `docker compose up -d` sobe um Postgres 16 local (ver `docker-compose.yml`), e
+  `./gradlew bootRun --args='--spring.profiles.active=postgres'` ativa `application-postgres.yml`, que só troca o
+  datasource — as mesmas migrations Flyway (`V1`, `V2`, ...) rodam em ambos os caminhos sem alteração. Ver
+  `docs/guides/DEVELOPER_GUIDE.md`, seção "Rodando com Postgres real (Docker)".
+- Testes de integração (`./gradlew integrationTest`) usam um terceiro caminho, Postgres efêmero via Testcontainers
+  — independente do container do `docker-compose.yml`.
 
 ---
 
 ## 5. TRATAMENTO DE ERROS
 
-Escreva aqui a tabela de mapeamento exceção → HTTP status → mensagem assim que ela existir — nunca deixe o código
-divergir do que está escrito aqui.
+Mapeamento aplicado por `GlobalExceptionHandler` (`src/main/kotlin/com/base/api/error/GlobalExceptionHandler.kt`),
+atualizado em 2026-07-23:
+
+| Exceção | HTTP | Observação |
+|---|---|---|
+| `MethodArgumentNotValidException` (Bean Validation) | 400 | resposta detalhada por campo (`ValidationErrorResponse`) |
+| `ResourceNotFoundException` (`BusinessException`, statusCode=404) | 404 | ex.: Task não encontrada |
+| `TaskOperationException` (`BusinessException`, statusCode=422) | 422 | guard de status terminal (seção 2.1) |
+| `ObjectOptimisticLockingFailureException` | 409 | conflito de `@Version` (seção 2.2) |
+| Qualquer outra `Exception` não mapeada | 500 | stack trace só no log, nunca no corpo da resposta |
+
+Toda nova exceção de domínio deve estender `BusinessException` com o `statusCode` correto — não criar um
+`@ExceptionHandler` novo a menos que o tipo não seja uma `BusinessException` (como no caso do optimistic lock).
 
 ---
 
@@ -98,8 +132,18 @@ existirem — nunca deixe o código divergir do que está escrito aqui.
 
 ## 11. TESTES
 
-Escreva aqui a separação entre testes unitários e de integração, a convenção de nomenclatura de cenário de teste e o
-piso de cobertura exigido pelo build assim que existirem — nunca deixe o código divergir do que está escrito aqui.
+**Separação** (2026-07-23): `./gradlew test` roda testes unitários (exclui a tag `integration`);
+`./gradlew integrationTest` roda os testes de integração com Postgres real via Testcontainers (requer Docker,
+não bloqueia `./gradlew build`/`check`).
+
+**Convenção de cenário**: comentário `TEST-<AREA>-NN` acima do teste, descrevendo o cenário e por que ele existe
+(qual comportamento quebra se o teste for removido) — ex.: `TEST-TASK-01`, `TEST-ERROR-04`.
+
+**Piso de cobertura**: 80% de instrução (`INSTRUCTION`/`COVEREDRATIO`), verificado por
+`jacocoTestCoverageVerification` (JaCoCo), ligado à task `check` — `./gradlew build` falha se a cobertura cair
+abaixo do piso. Excluídos da régua (sem lógica de negócio a testar): `models`, `dtos`, `controllers/request`,
+`controllers/response`, `config`, `exceptions`, `ModeloApplication`, e os DTOs de resposta de erro
+(`ErrorResponse`, `FieldError`, `ValidationErrorResponse`). Cobertura real em 2026-07-23: 91.7%.
 
 ---
 
