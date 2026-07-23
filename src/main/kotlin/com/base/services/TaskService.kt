@@ -4,6 +4,7 @@ import com.base.dtos.TaskDTO
 import com.base.exceptions.ResourceNotFoundException
 import com.base.exceptions.TaskOperationException
 import com.base.mappers.TaskMapper
+import com.base.models.Task
 import com.base.models.TaskStatus
 import com.base.repositories.TaskRepository
 import org.slf4j.LoggerFactory
@@ -37,11 +38,7 @@ class TaskService(
     fun complete(id: Long): TaskDTO {
         val task = repository.findById(id)
             .orElseThrow { ResourceNotFoundException("Task $id não encontrada") }
-
-        if (task.status in closedTaskStatuses) {
-            log.warn("action=complete_task status=conflict id={} currentStatus={}", id, task.status)
-            throw TaskOperationException("Task $id não aceita esta operação no status ${task.status}")
-        }
+        requireNotClosed(task, action = "complete_task")
 
         val updated = task.copy(status = TaskStatus.DONE, updatedAt = LocalDateTime.now())
         val saved = repository.save(updated)
@@ -53,11 +50,7 @@ class TaskService(
     fun deactivate(id: Long): TaskDTO {
         val task = repository.findById(id)
             .orElseThrow { ResourceNotFoundException("Task $id não encontrada") }
-
-        if (task.status in closedTaskStatuses) {
-            log.warn("action=deactivate_task status=conflict id={} currentStatus={}", id, task.status)
-            throw TaskOperationException("Task $id não aceita esta operação no status ${task.status}")
-        }
+        requireNotClosed(task, action = "deactivate_task")
 
         val updated = task.copy(
             active = false,
@@ -67,5 +60,16 @@ class TaskService(
         val saved = repository.save(updated)
         log.info("action=deactivate_task status=ok id={}", saved.id)
         return mapper.toDto(saved)
+    }
+
+    /**
+     * Guard único de status terminal: nenhum write path (complete, deactivate, ou um futuro
+     * método novo) pode duplicar esta checagem — todos devem chamar esta função.
+     */
+    private fun requireNotClosed(task: Task, action: String) {
+        if (task.status in closedTaskStatuses) {
+            log.warn("action={} status=conflict id={} currentStatus={}", action, task.id, task.status)
+            throw TaskOperationException("Task ${task.id} não aceita esta operação no status ${task.status}")
+        }
     }
 }

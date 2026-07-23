@@ -6,6 +6,51 @@ plugins {
     kotlin("jvm") version "1.9.24"
     kotlin("plugin.spring") version "1.9.24"
     kotlin("plugin.jpa") version "1.9.24"
+    jacoco
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+val jacocoExcludes = listOf(
+    "**/models/**",
+    "**/dtos/**",
+    "**/controllers/request/**",
+    "**/controllers/response/**",
+    "**/config/**",
+    "**/exceptions/**",
+    "**/ModeloApplication*",
+    // DTOs de resposta de erro (sem lógica, só carregam dado) — mesmo critério dos
+    // outros DTOs acima, apesar de viverem no pacote api/error junto do handler real.
+    "**/api/error/ErrorResponse*",
+    "**/api/error/FieldError*",
+    "**/api/error/ValidationErrorResponse*"
+)
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+    classDirectories.setFrom(
+        files(classDirectories.files.map { fileTree(it) { exclude(jacocoExcludes) } })
+    )
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.jacocoTestReport)
+    classDirectories.setFrom(tasks.jacocoTestReport.get().classDirectories)
+    violationRules {
+        rule {
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+    }
 }
 
 group = "com.base"
