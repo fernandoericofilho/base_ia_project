@@ -6,7 +6,7 @@ Projeto didático para aprender **arquitetura em camadas** com **Kotlin + Spring
 
 ```bash
 # Clonar
-git clone <repo>
+git clone https://github.com/fernandoericofilho/base_ia_project.git
 cd base_ia_project
 
 # Compilar e rodar testes
@@ -43,19 +43,16 @@ Flyway · JPA/Hibernate · JUnit 5 · Mockito-Kotlin · JaCoCo · springdoc-open
 
 ## ✨ Destaques
 
-✅ **Arquitetura**: camadas claras (Controller → Service → Repository), com guard de estado terminal e
-optimistic locking (`@Version` → 409) já demonstrados na feature de referência (`Task`)
-✅ **Error Handling**: Global `@ControllerAdvice` profissional (validação, exceções de negócio, conflito de
-concorrência, fallback genérico — ver tabela em [`docs/architecture/REGRAS-DO-SISTEMA.md`](./docs/architecture/REGRAS-DO-SISTEMA.md))
-✅ **Testes**: 22 testes unitários passando (`./gradlew test`) + testes de integração via Testcontainers
-(`./gradlew integrationTest`, requer Docker) — ver [`docs/guides/TESTING_RULE.md`](./docs/guides/TESTING_RULE.md)
-✅ **Cobertura**: piso de 80% imposto pelo build via JaCoCo (`./gradlew build` falha abaixo disso); cobertura
-real atual: 91.7%
-✅ **Postgres real opcional**: `docker compose up -d` + profile `postgres`, sem sair do H2 no dia a dia — ver
-[`docs/guides/DEVELOPER_GUIDE.md`](./docs/guides/DEVELOPER_GUIDE.md#rodando-com-postgres-real-docker)
-✅ **Documentação**: Prática e detalhada em `docs/`, com fonte única de verdade de regras em
-[`docs/architecture/REGRAS-DO-SISTEMA.md`](./docs/architecture/REGRAS-DO-SISTEMA.md)
-✅ **Agents IA**: 9 personas para code review
+- ✅ **Arquitetura**: camadas claras (Controller → Service → Repository), com guard de estado terminal e optimistic locking (`@Version` → 409) já demonstrados na feature de referência (`Task`)
+- ✅ **Error Handling**: Global `@ControllerAdvice` profissional (validação, exceções de negócio, conflito de concorrência, fallback genérico — ver tabela em [`docs/architecture/REGRAS-DO-SISTEMA.md`](./docs/architecture/REGRAS-DO-SISTEMA.md))
+- ✅ **Testes**: 22 testes unitários passando (`./gradlew test`) + testes de integração via Testcontainers (`./gradlew integrationTest`, requer Docker) — ver [`docs/guides/TESTING_RULE.md`](./docs/guides/TESTING_RULE.md)
+- ✅ **Cobertura**: piso de 80% imposto pelo build via JaCoCo (`./gradlew build` falha abaixo disso); cobertura real atual: 91.7%
+- ✅ **Postgres real opcional**: `docker compose up -d` + profile `postgres`, sem sair do H2 no dia a dia — ver [`docs/guides/DEVELOPER_GUIDE.md`](./docs/guides/DEVELOPER_GUIDE.md#rodando-com-postgres-real-docker)
+- ✅ **OpenAPI/Swagger**: documentação interativa em `/swagger-ui/index.html`, com todos os endpoints anotados
+- ✅ **CI**: GitHub Actions rodando build, testes e `integrationTest` a cada push/PR
+- ✅ **Métricas de negócio**: timers e counters por operação crítica (`task.<ação>.timer`/`.count`) expostos em `/actuator/prometheus`
+- ✅ **Documentação**: Prática e detalhada em `docs/`, com fonte única de verdade de regras em [`docs/architecture/REGRAS-DO-SISTEMA.md`](./docs/architecture/REGRAS-DO-SISTEMA.md)
+- ✅ **Agents IA**: 9 personas para code review
 
 ## 📖 Como Começar
 
