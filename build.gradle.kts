@@ -73,9 +73,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.flywaydb:flyway-core")
+    // Flyway 10+ modularizou o suporte a bancos por módulo separado do flyway-core.
+    implementation("org.flywaydb:flyway-database-postgresql")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("com.h2database:h2")
+    // Postgres real (profile "postgres", ver docker-compose.yml) — H2 continua o default do dia a dia.
+    runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(kotlin("test"))
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
@@ -84,7 +88,7 @@ dependencies {
     // Postgres real e usado apenas nesta camada de teste, via Docker.
     testImplementation("org.testcontainers:junit-jupiter:1.20.4")
     testImplementation("org.testcontainers:postgresql:1.20.4")
-    testRuntimeOnly("org.postgresql:postgresql")
+    // driver Postgres já vem via runtimeOnly acima, herdado pelo classpath de teste
 }
 
 tasks.withType<KotlinCompile> {

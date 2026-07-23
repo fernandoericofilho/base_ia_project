@@ -16,7 +16,9 @@ cd base_ia_project
 ./gradlew bootRun
 ```
 
-App disponível em `http://localhost:8080`
+App disponível em `http://localhost:8080` (H2 em memória por padrão). Pra rodar contra Postgres real via Docker,
+veja [`docs/guides/DEVELOPER_GUIDE.md`](./docs/guides/DEVELOPER_GUIDE.md#rodando-com-postgres-real-docker)
+(`docker compose up -d` + `--spring.profiles.active=postgres`).
 
 ## 📚 Documentação
 
@@ -32,7 +34,7 @@ App disponível em `http://localhost:8080`
 ## 🛠️ Stack
 
 ```
-Kotlin 1.9.24 · Spring Boot 3.4.5 · H2 (PostgreSQL Dialect)
+Kotlin 1.9.24 · Spring Boot 3.4.5 · H2 (PostgreSQL Dialect) ou Postgres real via Docker Compose
 Flyway · JPA/Hibernate · JUnit 5 · Mockito-Kotlin · Gradle 9.2.1
 ```
 

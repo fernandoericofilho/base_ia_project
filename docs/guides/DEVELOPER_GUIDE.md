@@ -19,6 +19,23 @@ Ou use o script:
 
 App estará em `http://localhost:8080`
 
+## Rodando com Postgres real (Docker)
+
+Por padrão a aplicação usa H2 em memória (`application.yml`) — nenhuma dependência externa, ideal pra exercícios
+rápidos de aula. Quando quiser rodar contra um Postgres real (mais parecido com produção):
+
+```bash
+docker compose up -d          # sobe Postgres em localhost:5432 (db "modelo", user/senha "app")
+./gradlew bootRun --args='--spring.profiles.active=postgres'
+```
+
+O profile `postgres` (`application-postgres.yml`) só troca o datasource — o Flyway aplica as mesmas migrations
+(`V1`, `V2`, ...) automaticamente na subida, contra o Postgres real. Para parar e apagar os dados:
+
+```bash
+docker compose down -v
+```
+
 ## Arquitetura
 
 ```
@@ -356,6 +373,17 @@ Verifique:
 - [ ] `@Valid` está no `@RequestBody`?
 - [ ] Request DTO tem annotations de validação?
 - [ ] Sem tratamento global de erro? → Ver seção "Global Error Handler" em TODO
+
+### `docker compose up -d` sobe, mas `bootRun --spring.profiles.active=postgres` dá erro de autenticação
+
+Sintoma: a aplicação falha ao subir com algo como `FATAL: autenticação do tipo password falhou para usuário "app"`,
+mesmo com `docker compose ps` mostrando o container saudável. Causa mais comum: **já existe outro Postgres rodando
+na porta 5432 nesta máquina** (um Postgres nativo instalado localmente, por exemplo) — a conexão da aplicação vai
+para esse outro Postgres, não para o container, e falha por credenciais diferentes.
+
+Como confirmar: veja se há mais de um processo escutando na porta 5432 (`netstat -ano | findstr :5432` no
+Windows, ou `lsof -i :5432` no Linux/Mac). Se houver, mude o mapeamento de porta no `docker-compose.yml`
+(ex.: `"5433:5432"`) e aponte `spring.datasource.url` em `application-postgres.yml` para a nova porta.
 
 ## Dependências Principais
 
