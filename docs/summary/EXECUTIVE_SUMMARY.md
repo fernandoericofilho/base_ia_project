@@ -39,12 +39,11 @@ ANTES:
   = 260+ linhas distribuídas, confuso
 
 DEPOIS:
-  ✅ README.md (50 linhas, direto ao ponto)
-  ✅ DEVELOPER_GUIDE.md (200 linhas, prático + exemplos)
-  ✅ ANALYSIS_AND_IMPROVEMENTS.md (150 linhas, técnico)
-  ✅ IMPROVEMENTS_SUMMARY.md (180 linhas, este arquivo)
-  = 580 linhas, mas bem organizadas
-  = Economia de 50% tempo de navegação
+  ✅ README.md — direto ao ponto
+  ✅ docs/guides/DEVELOPER_GUIDE.md — prático + exemplos
+  ✅ docs/technical/ARCHITECTURE_AND_IMPROVEMENTS.md — técnico
+  ✅ docs/summary/EXECUTIVE_SUMMARY.md — este arquivo
+  = Bem organizadas em docs/, sem redundância na raiz
 ```
 
 ### 🛡️ Error Handling (novo)
@@ -61,16 +60,12 @@ DEPOIS:
 - ✅ Logs estruturados para todos os erros
 - ✅ Campo-a-campo feedback em erros de validação
 
-### 🧪 Testes (novo)
+### 🧪 Testes
 
-**1 arquivo de integração adicionado**:
-
-- GlobalExceptionHandlerTest.kt — 3 testes de integração
-
-**Cobertura**:
-- ✅ Validação com erro 400
-- ✅ Request válido com criação 201
-- ✅ Campo obrigatório faltando com erro 400
+**Situação em 2026-07-22** (`./gradlew test`): 13 testes unitários passando, mais testes de integração via
+Testcontainers (`./gradlew integrationTest`, requer Docker) — inclui `GlobalExceptionHandlerTest`,
+`HelloControllerIT`, `HelloServiceIntegrationTest` e `TaskServiceTest` (feature Task, adicionada após a
+análise original de 2026-06-08).
 
 ---
 
@@ -80,8 +75,7 @@ DEPOIS:
 
 | Métrica | Antes | Depois | Melhoria |
 |---------|-------|--------|----------|
-| Testes Unitários | 2 | 7 | +250% |
-| Cobertura de Código | ~30% | ~45% | +50% |
+| Testes Unitários | 2 | 13 | +550% |
 | Global Error Handler | ❌ | ✅ | ✅ |
 | Respostas Padronizadas | ❌ | ✅ | ✅ |
 | Documentação Prática | 0 | 200+lines | ✅ |
@@ -100,12 +94,12 @@ DEPOIS:
 
 ## 🗂️ ARQUIVOS CRIADOS/MODIFICADOS
 
-### ✅ Criados (6 novos arquivos)
+### ✅ Criados
 
 ```
-✅ DEVELOPER_GUIDE.md (200 linhas, documentação prática)
-✅ ANALYSIS_AND_IMPROVEMENTS.md (150 linhas, roadmap)
-✅ IMPROVEMENTS_SUMMARY.md (150 linhas, este sumário)
+✅ docs/guides/DEVELOPER_GUIDE.md (documentação prática)
+✅ docs/technical/ARCHITECTURE_AND_IMPROVEMENTS.md (roadmap)
+✅ docs/summary/EXECUTIVE_SUMMARY.md (este sumário)
 ✅ src/main/kotlin/com/base/exceptions/Exceptions.kt
 ✅ src/main/kotlin/com/base/api/error/ErrorResponse.kt
 ✅ src/main/kotlin/com/base/api/error/GlobalExceptionHandler.kt
@@ -122,8 +116,8 @@ DEPOIS:
 ### 📌 Consolidados (removidos quando redundantes)
 
 ```
-📌 AGENTS_README.md → Conteúdo em DEVELOPER_GUIDE.md
-📌 CLASSROOM_GUIDE.md → Conteúdo em DEVELOPER_GUIDE.md
+📌 AGENTS_README.md, AGENTS_PROMPTS.md → conteúdo consolidado em docs/agents/README.md
+📌 CLASSROOM_GUIDE.md, PLAYBOOK_PR.md (cópias na raiz) → mantidos só em docs/guides/
 ```
 
 ---
@@ -134,10 +128,10 @@ DEPOIS:
 
 ```bash
 # Nova documentação principal
-cat DEVELOPER_GUIDE.md
+cat docs/guides/DEVELOPER_GUIDE.md
 
 # Entender análise e roadmap
-cat ANALYSIS_AND_IMPROVEMENTS.md
+cat docs/technical/ARCHITECTURE_AND_IMPROVEMENTS.md
 ```
 
 ### Passo 2: Compilar e testar (1 min)
@@ -156,8 +150,8 @@ cat ANALYSIS_AND_IMPROVEMENTS.md
 
 2. **Semana 2** (IMPORTANTE):
    - Adicionar OpenAPI/Swagger
-   - Integração tests completos
-   - Health checks (Actuator)
+   - ~~Integration tests completos~~ — feito (`HelloControllerIT`, `HelloServiceIntegrationTest`)
+   - ~~Health checks (Actuator)~~ — feito, já exposto em `application.yml`
 
 3. **Semana 3+** (BACLOG):
    - Métricas e observabilidade
@@ -176,11 +170,11 @@ cat ANALYSIS_AND_IMPROVEMENTS.md
 | 1 | Adicionar Profiles | 20 min | 🔴 Alto |
 | 1 | Mover Mapper → Service | 30 min | 🔴 Alto |
 | 2 | OpenAPI/Swagger | 1 h | 🟡 Médio |
-| 2 | Integration Tests | 2 h | 🟡 Médio |
-| 2 | Health Checks (Actuator) | 30 min | 🟡 Médio |
+| 2 | ~~Integration Tests~~ | ~~2 h~~ | ✅ Feito |
+| 2 | ~~Health Checks (Actuator)~~ | ~~30 min~~ | ✅ Feito |
 | 3+ | CI/CD, Docker, Métricas | 6-8 h | 🟢 Baclog |
 
-**Total**: ~12 horas para "production-ready"
+**Total restante**: ~9,5 horas para "production-ready"
 
 ---
 
@@ -214,7 +208,7 @@ cat ANALYSIS_AND_IMPROVEMENTS.md
 │   BASE IA PROJECT - STATUS PÓS MELHORIAS    │
 ├─────────────────────────────────────────────┤
 │ Build Status       ✅ BUILD SUCCESSFUL      │
-│ Tests             ✅ 7 tests passing       │
+│ Tests             ✅ 13 unit tests passing │
 │ Error Handling    ✅ PRODUCTION-READY      │
 │ Documentation    ✅ CLEAR & PRACTICAL      │
 │ Code Quality      🟡 GOOD (pode melhorar)  │

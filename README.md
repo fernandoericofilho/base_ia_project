@@ -40,7 +40,7 @@ Flyway · JPA/Hibernate · JUnit 5 · Mockito-Kotlin · Gradle 9.2.1
 
 ✅ **Arquitetura**: camadas claras (Controller → Service → Repository)
 ✅ **Error Handling**: Global `@ControllerAdvice` profissional
-✅ **Testes**: 7 testes passando (~45% cobertura)
+✅ **Testes**: 13 testes unitários passando (`./gradlew test`) + testes de integração via Testcontainers (`./gradlew integrationTest`, requer Docker)
 ✅ **Testes de integração**: `./gradlew integrationTest` sobe Postgres real via Testcontainers (requer Docker) — ver [`docs/guides/TESTING_RULE.md`](./docs/guides/TESTING_RULE.md)
 ✅ **Documentação**: Prática e detalhada em `docs/`
 ✅ **Agents IA**: 9 personas para code review
@@ -100,7 +100,7 @@ Ou, dentro de uma sessão interativa do Claude Code:
 | Item | Status |
 |------|--------|
 | Build | ✅ SUCCESS |
-| Testes | ✅ 7/7 passando |
+| Testes | ✅ 13/13 unitários passando |
 | Documentação | ✅ Completa em `docs/` |
 | Error Handling | ✅ Profissional |
 | Code Review IA | ✅ 9 agentes (manual em `docs/agents/` + subagents reais em `.claude/agents/`) |

@@ -4,10 +4,13 @@ Análise técnica completa do projeto com problemas encontrados, soluções impl
 
 ## 📋 Status Geral
 
-- **Data da Análise**: 2026-06-08
+- **Data da Análise original**: 2026-06-08 (números atualizados em 2026-07-22 — projeto já ganhou a feature Task
+  desde então: `TaskController`, `TaskService`, `TaskRepository`, migration `V2__create_task.sql`)
 - **Build Status**: ✅ BUILD SUCCESSFUL
-- **Testes**: ✅ 7/7 passando
-- **Compilação**: ✅ 18 segundos
+- **Testes**: ✅ 13/13 unitários passando (`./gradlew test`) + testes de integração via Testcontainers
+  (`./gradlew integrationTest`, requer Docker)
+- **Cobertura de código**: não medida automaticamente — o projeto ainda não tem plugin de cobertura (JaCoCo)
+  configurado no `build.gradle.kts`, apesar do `CLAUDE.md` recomendar um piso de cobertura no build
 
 ---
 
@@ -73,7 +76,7 @@ fun sayHello(@Valid @RequestBody request: HelloRequest): ResponseEntity<HelloRes
 
 ### 3️⃣ Baixa Cobertura de Testes
 
-**Problema**: Apenas 2 testes unitários (~30% cobertura)
+**Problema (2026-06-08)**: Apenas 2 testes unitários
 ```
 HelloServiceTest — 1 teste
 HelloMapperTest — 1 teste
@@ -82,10 +85,12 @@ HelloControllerIT — não implementado
 
 **Solução Implementada**:
 - ✅ GlobalExceptionHandlerTest — 3 testes de integração
-- ✅ Cobertura aumentou de 30% para 45%
-- ✅ Testes agora cobrem fluxo completo
+- ✅ HelloControllerIT e HelloServiceIntegrationTest implementados (Testcontainers)
+- ✅ TaskServiceTest — 7 testes cobrindo a feature Task
+- ✅ Testes agora cobrem fluxo completo, incluindo guard de status terminal
 
-**Resultado**: 7 testes passando (+250% aumento)
+**Resultado (2026-07-22)**: 13 testes unitários passando via `./gradlew test`, mais os testes de integração
+via `./gradlew integrationTest`
 
 ---
 
@@ -215,22 +220,13 @@ Falta teste de validação do request
 
 **Estimado**: 2 horas
 
-#### 6. Health Checks Ausentes
+#### 6. Health Checks — ✅ RESOLVIDO (2026-07-22)
 ```kotlin
-❌ ATUAL: Sem /actuator/health
-Sem observabilidade básica
+✅ ATUAL: Spring Actuator já configurado
+management.endpoints.web.exposure.include: health,prometheus,metrics (application.yml)
 ```
 
-**Impacto**: Difícil monitorar em produção
-
-**Solução**: Adicionar Spring Actuator
-```gradle
-implementation("org.springframework.boot:spring-boot-starter-actuator")
-```
-
-**Benefício**: `/actuator/health`, `/actuator/metrics`
-
-**Estimado**: 30 min
+`/actuator/health` e `/actuator/prometheus` já expostos. Nenhuma ação pendente neste item.
 
 ---
 
@@ -249,11 +245,11 @@ implementation("org.springframework.boot:spring-boot-starter-actuator")
 
 | Métrica | Antes | Depois | Δ |
 |---------|-------|--------|------|
-| **MDs na raiz** | 9 | 1 | ✅ -8 |
+| **MDs na raiz** | 9 | 2 (`README.md`, `CLAUDE.md`) | ✅ -7 |
 | **MDs organizados** | ❌ | ✅ | ✅ Novo |
 | **Global Error Handler** | ❌ | ✅ | ✅ +3 classes |
-| **Testes** | 2 | 7 | ✅ +5 |
-| **Cobertura** | ~30% | ~45% | ✅ +50% |
+| **Testes** | 2 | 13 unitários + integração (Testcontainers) | ✅ +11 |
+| **Health checks** | ❌ | ✅ Actuator (`/actuator/health`, `/actuator/prometheus`) | ✅ Novo |
 | **Documentação Prática** | 0 | 200+ linhas | ✅ +200 |
 | **HTTP Responses** | Genéricas | Profissional | ✅ 100% |
 | **Segurança de Erros** | ❌ | ✅ (stack trace escondido) | ✅ Novo |
@@ -267,10 +263,10 @@ implementation("org.springframework.boot:spring-boot-starter-actuator")
 - [ ] Adicionar profiles de ambiente
 - [ ] Refatorar DTOs redundantes
 
-### Semana 2 (IMPORTANTE) — 4 horas
+### Semana 2 (IMPORTANTE) — 3,5 horas
 - [ ] Adicionar OpenAPI/Swagger
-- [ ] Integration tests completos
-- [ ] Health checks (Actuator)
+- [x] Integration tests completos (`HelloControllerIT`, `HelloServiceIntegrationTest`) — 2026-07-22
+- [x] Health checks (Actuator) — já configurado, 2026-07-22
 
 ### Semana 3+ (BACLOG) — 6-8 horas
 - [ ] Métricas (Micrometer)
@@ -283,7 +279,7 @@ implementation("org.springframework.boot:spring-boot-starter-actuator")
 
 ✅ **Consolidação de Documentação**: De 9 MDs confusos para estrutura clara em `docs/`
 ✅ **Error Handling Profissional**: Respostas HTTP padronizadas e seguras
-✅ **Cobertura de Testes**: De 30% para 45% (com integration tests)
+✅ **Cobertura de Testes**: De 2 para 13 testes unitários, mais integration tests com Testcontainers
 ✅ **Documentação Prática**: Guia completo para novos desenvolvedores
 ✅ **Agentes Atualizados**: 9 personas com informação real do projeto
 ✅ **Build Saudável**: BUI LD SUCCESS
