@@ -35,18 +35,24 @@ veja [`docs/guides/DEVELOPER_GUIDE.md`](./docs/guides/DEVELOPER_GUIDE.md#rodando
 
 ```
 Kotlin 1.9.24 · Spring Boot 3.4.5 · H2 (PostgreSQL Dialect) ou Postgres real via Docker Compose
-Flyway · JPA/Hibernate · JUnit 5 · Mockito-Kotlin · Gradle 9.2.1
+Flyway · JPA/Hibernate · JUnit 5 · Mockito-Kotlin · JaCoCo · Gradle 9.2.1
 ```
 
 ## ✨ Destaques
 
-✅ **Arquitetura**: camadas claras (Controller → Service → Repository)
-✅ **Error Handling**: Global `@ControllerAdvice` profissional
-✅ **Testes**: 13 testes unitários passando (`./gradlew test`) + testes de integração via Testcontainers (`./gradlew integrationTest`, requer Docker)
-✅ **Testes de integração**: `./gradlew integrationTest` sobe Postgres real via Testcontainers (requer Docker) — ver [`docs/guides/TESTING_RULE.md`](./docs/guides/TESTING_RULE.md)
-✅ **Documentação**: Prática e detalhada em `docs/`
+✅ **Arquitetura**: camadas claras (Controller → Service → Repository), com guard de estado terminal e
+optimistic locking (`@Version` → 409) já demonstrados na feature de referência (`Task`)
+✅ **Error Handling**: Global `@ControllerAdvice` profissional (validação, exceções de negócio, conflito de
+concorrência, fallback genérico — ver tabela em [`docs/architecture/REGRAS-DO-SISTEMA.md`](./docs/architecture/REGRAS-DO-SISTEMA.md))
+✅ **Testes**: 22 testes unitários passando (`./gradlew test`) + testes de integração via Testcontainers
+(`./gradlew integrationTest`, requer Docker) — ver [`docs/guides/TESTING_RULE.md`](./docs/guides/TESTING_RULE.md)
+✅ **Cobertura**: piso de 80% imposto pelo build via JaCoCo (`./gradlew build` falha abaixo disso); cobertura
+real atual: 91.7%
+✅ **Postgres real opcional**: `docker compose up -d` + profile `postgres`, sem sair do H2 no dia a dia — ver
+[`docs/guides/DEVELOPER_GUIDE.md`](./docs/guides/DEVELOPER_GUIDE.md#rodando-com-postgres-real-docker)
+✅ **Documentação**: Prática e detalhada em `docs/`, com fonte única de verdade de regras em
+[`docs/architecture/REGRAS-DO-SISTEMA.md`](./docs/architecture/REGRAS-DO-SISTEMA.md)
 ✅ **Agents IA**: 9 personas para code review
-✅ **Build**: ✅ SUCCESS (18s)
 
 ## 📖 Como Começar
 
@@ -102,9 +108,11 @@ Ou, dentro de uma sessão interativa do Claude Code:
 | Item | Status |
 |------|--------|
 | Build | ✅ SUCCESS |
-| Testes | ✅ 13/13 unitários passando |
-| Documentação | ✅ Completa em `docs/` |
-| Error Handling | ✅ Profissional |
+| Testes | ✅ 22/22 unitários passando |
+| Cobertura | ✅ 91.7% (piso exigido: 80%, via JaCoCo) |
+| Documentação | ✅ Completa em `docs/`, regras em `docs/architecture/REGRAS-DO-SISTEMA.md` |
+| Error Handling | ✅ Profissional (inclui 409 de optimistic locking) |
+| Postgres real | ✅ Opcional via `docker compose up -d` + profile `postgres` |
 | Code Review IA | ✅ 9 agentes (manual em `docs/agents/` + subagents reais em `.claude/agents/`) |
 
 ---
