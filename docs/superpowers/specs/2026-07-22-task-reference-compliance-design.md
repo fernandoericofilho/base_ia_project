@@ -1,7 +1,7 @@
 # Design: fechar a conformidade do CRUD de referência (Task) com o CLAUDE.md
 
 **Data**: 2026-07-22
-**Status**: aprovado, aguardando plano de implementação
+**Status**: implementado em 2026-07-23 (commits `bb01369`, `5d2aba3`, `e07a50f`)
 
 ## Contexto
 
