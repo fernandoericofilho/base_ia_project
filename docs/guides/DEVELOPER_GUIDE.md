@@ -385,6 +385,23 @@ Como confirmar: veja se há mais de um processo escutando na porta 5432 (`netsta
 Windows, ou `lsof -i :5432` no Linux/Mac). Se houver, mude o mapeamento de porta no `docker-compose.yml`
 (ex.: `"5433:5432"`) e aponte `spring.datasource.url` em `application-postgres.yml` para a nova porta.
 
+### `./gradlew integrationTest` falha com `client version 1.32 is too old` (Windows + Docker Desktop)
+
+Sintoma: o Testcontainers falha ao subir o Postgres efêmero com
+`com.github.dockerjava.api.exception.BadRequestException: Status 400: client version 1.32 is too old. Minimum
+supported API version is 1.40`, mesmo com `docker version` mostrando uma API bem mais nova.
+
+Causa conhecida: no Windows, com o Docker Desktop usando o named pipe nativo (`npipe`), o cliente Docker
+embutido no Testcontainers às vezes negocia uma versão de API antiga e fixa, incompatível com Docker Engines mais
+recentes. Não é um problema deste projeto nem das migrations/Flyway — H2 e Postgres via `docker compose`
+continuam funcionando normalmente, só a via de teste com Testcontainers é afetada.
+
+Mitigação conhecida (não garantida em toda instalação): habilitar a integração do Docker Desktop com WSL2
+(*Settings → Resources → WSL Integration*) e rodar o Gradle a partir de dentro da distro WSL2, em vez do
+Windows nativo — isso troca o transporte de `npipe` para socket Unix, que o Testcontainers negocia de forma mais
+confiável. Se isso não resolver, trate como um bloqueio conhecido de ambiente e prefira rodar
+`./gradlew integrationTest` em CI (Linux) em vez de localmente no Windows.
+
 ## Dependências Principais
 
 ```gradle

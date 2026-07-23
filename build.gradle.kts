@@ -86,8 +86,8 @@ dependencies {
 
     // Testes de integracao (Testcontainers) - app continua em H2 no dia a dia;
     // Postgres real e usado apenas nesta camada de teste, via Docker.
-    testImplementation("org.testcontainers:junit-jupiter:1.20.4")
-    testImplementation("org.testcontainers:postgresql:1.20.4")
+    testImplementation("org.testcontainers:junit-jupiter:1.21.3")
+    testImplementation("org.testcontainers:postgresql:1.21.3")
     // driver Postgres já vem via runtimeOnly acima, herdado pelo classpath de teste
 }
 
