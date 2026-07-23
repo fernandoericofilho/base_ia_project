@@ -1,0 +1,6 @@
+# Profile "dev": mesmo H2 em memória do default (application.yml), com SQL visível no log
+# para facilitar depuração local. Ativar com --spring.profiles.active=dev.
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE

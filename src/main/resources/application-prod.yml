@@ -1,0 +1,27 @@
+# Profile "prod": Postgres real via variáveis de ambiente — nunca credenciais hardcoded
+# aqui (regra "No hardcoded values" do CLAUDE.md). Ativar com --spring.profiles.active=prod
+# e definir DB_HOST, DB_PORT, DB_NAME, DB_USERNAME, DB_PASSWORD no ambiente de deploy.
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+management:
+  endpoint:
+    health:
+      show-details: never
+logging:
+  level:
+    root: INFO
+    com.base: INFO

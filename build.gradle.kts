@@ -75,6 +75,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     // Flyway 10+ modularizou o suporte a bancos por módulo separado do flyway-core.
     implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("com.h2database:h2")

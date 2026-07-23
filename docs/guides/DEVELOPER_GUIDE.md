@@ -36,6 +36,24 @@ O profile `postgres` (`application-postgres.yml`) só troca o datasource — o F
 docker compose down -v
 ```
 
+## Profiles de ambiente
+
+| Profile | Quando usar | Banco |
+|---|---|---|
+| *(nenhum, default)* | Dia a dia / aula | H2 em memória |
+| `dev` | Depuração local, quer ver o SQL gerado pelo Hibernate no log | H2 em memória (mesmo do default, só muda o nível de log) |
+| `postgres` | Testar contra Postgres real via Docker Compose (ver seção acima) | Postgres local (`docker-compose.yml`) |
+| `test` | Subir a aplicação (não os testes JUnit, que já rodam sem profile) num ambiente de CI, com log enxuto | H2 em memória |
+| `prod` | Deploy real | Postgres via variáveis de ambiente (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`) — **nunca** credenciais hardcoded |
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=dev'
+
+# prod: variáveis de ambiente são obrigatórias, sem default de usuário/senha
+DB_HOST=meu-host DB_NAME=modelo DB_USERNAME=... DB_PASSWORD=... \
+  ./gradlew bootRun --args='--spring.profiles.active=prod'
+```
+
 ## Arquitetura
 
 ```

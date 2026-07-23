@@ -61,14 +61,21 @@ Desativação (`DELETE /api/v1/tasks/{id}`, soft delete) é ortogonal ao `status
 Convenções de migration, nomenclatura e checklist completo vivem em `docs/data/SCHEMA.md` (que também descreve o
 schema atual tabela por tabela) — este documento não duplica aquele conteúdo.
 
-**Dois caminhos de execução** (2026-07-23):
+**Profiles de execução** (2026-07-23, atualizado com `dev`/`test`/`prod` em 2026-07-23):
 - **Default (dia a dia / aula)**: H2 em memória, `application.yml`, sem dependência externa.
-- **Postgres real (opcional)**: `docker compose up -d` sobe um Postgres 16 local (ver `docker-compose.yml`), e
+- **`dev`**: mesmo H2 do default, só ativa log SQL do Hibernate (`application-dev.yml`).
+- **`postgres`** (opcional): `docker compose up -d` sobe um Postgres 16 local (ver `docker-compose.yml`), e
   `./gradlew bootRun --args='--spring.profiles.active=postgres'` ativa `application-postgres.yml`, que só troca o
-  datasource — as mesmas migrations Flyway (`V1`, `V2`, ...) rodam em ambos os caminhos sem alteração. Ver
-  `docs/guides/DEVELOPER_GUIDE.md`, seção "Rodando com Postgres real (Docker)".
-- Testes de integração (`./gradlew integrationTest`) usam um terceiro caminho, Postgres efêmero via Testcontainers
-  — independente do container do `docker-compose.yml`.
+  datasource — as mesmas migrations Flyway (`V1`, `V2`, ...) rodam em todos os caminhos sem alteração.
+- **`test`**: mesmo H2, log enxuto — pensado para subir a aplicação (não os testes JUnit) num pipeline de CI.
+- **`prod`**: Postgres via variáveis de ambiente obrigatórias (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`,
+  `DB_PASSWORD`) — `application-prod.yml` não define nenhum valor default de credencial, seguindo a regra "No
+  hardcoded values". `management.endpoint.health.show-details` vira `never` neste profile (nunca expor detalhe
+  de health check publicamente em produção).
+- Testes de integração (`./gradlew integrationTest`) usam um caminho à parte, Postgres efêmero via Testcontainers
+  — independente do container do `docker-compose.yml`. **Limitação conhecida**: falha em Windows com Docker
+  Desktop usando `npipe` nativo (erro de negociação de versão de API) — ver troubleshooting em
+  `docs/guides/DEVELOPER_GUIDE.md`.
 
 ---
 

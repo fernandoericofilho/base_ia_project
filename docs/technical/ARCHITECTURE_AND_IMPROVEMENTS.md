@@ -181,30 +181,15 @@ HelloRequest → HelloDTO → GreetingRecord → HelloDTO → HelloResponse
 
 ### 🟡 Importante (Semana 2)
 
-#### 4. OpenAPI/Swagger
+#### 4. OpenAPI/Swagger — ✅ RESOLVIDO (2026-07-23)
 ```kotlin
-❌ ATUAL: Sem documentação de API
-Sem anotações @Operation, @ApiResponse
-Sem /swagger-ui.html
+✅ ATUAL: springdoc-openapi-starter-webmvc-ui:2.8.6 configurado
+@Tag/@Operation/@ApiResponse em HelloController e TaskController
+OpenApiConfig define título/descrição/versão
 ```
 
-**Impacto**: Sem contrato claro com clientes
-
-**Solução**: Adicionar Spring Doc OpenAPI
-```gradle
-implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.0")
-```
-
-```kotlin
-@PostMapping
-@Operation(summary = "Greet a person")
-@ApiResponse(responseCode = "201", description = "Greeting created")
-fun sayHello(@RequestBody request: HelloRequest) { }
-```
-
-**Benefício**: Documentação automática em `/swagger-ui.html`
-
-**Estimado**: 1 hora
+Verificado manualmente: `/v3/api-docs` (200) e `/swagger-ui/index.html` (200), com todos os endpoints de
+`Task` e `Hello` documentados, incluindo `cancel`. Nenhuma ação pendente neste item.
 
 #### 5. Integration Tests Incompletos
 ```kotlin
@@ -264,7 +249,7 @@ management.endpoints.web.exposure.include: health,prometheus,metrics (applicatio
 - [ ] Refatorar DTOs redundantes
 
 ### Semana 2 (IMPORTANTE) — 3,5 horas
-- [ ] Adicionar OpenAPI/Swagger
+- [x] Adicionar OpenAPI/Swagger — 2026-07-23
 - [x] Integration tests completos (`HelloControllerIT`, `HelloServiceIntegrationTest`) — 2026-07-22
 - [x] Health checks (Actuator) — já configurado, 2026-07-22
 

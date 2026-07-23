@@ -145,11 +145,11 @@ cat docs/technical/ARCHITECTURE_AND_IMPROVEMENTS.md
 
 1. **Semana 1** (CRÍTICO):
    - Mover lógica de Mapper → Service
-   - Adicionar profiles (dev, test, prod)
+   - ~~Adicionar profiles (dev, test, prod)~~ — feito 2026-07-23 (`application-dev/test/prod.yml`)
    - Refatorar DTOs redundantes
 
 2. **Semana 2** (IMPORTANTE):
-   - Adicionar OpenAPI/Swagger
+   - ~~Adicionar OpenAPI/Swagger~~ — feito 2026-07-23 (`/swagger-ui/index.html`, `/v3/api-docs`)
    - ~~Integration tests completos~~ — feito (`HelloControllerIT`, `HelloServiceIntegrationTest`)
    - ~~Health checks (Actuator)~~ — feito, já exposto em `application.yml`
 
@@ -167,14 +167,14 @@ cat docs/technical/ARCHITECTURE_AND_IMPROVEMENTS.md
 | Semana | Tarefa | Tempo | Impacto |
 |--------|--------|-------|---------|
 | 1 | Consolidar DTOs | 45 min | 🔴 Alto |
-| 1 | Adicionar Profiles | 20 min | 🔴 Alto |
+| 1 | ~~Adicionar Profiles~~ | ~~20 min~~ | ✅ Feito |
 | 1 | Mover Mapper → Service | 30 min | 🔴 Alto |
-| 2 | OpenAPI/Swagger | 1 h | 🟡 Médio |
+| 2 | ~~OpenAPI/Swagger~~ | ~~1 h~~ | ✅ Feito |
 | 2 | ~~Integration Tests~~ | ~~2 h~~ | ✅ Feito |
 | 2 | ~~Health Checks (Actuator)~~ | ~~30 min~~ | ✅ Feito |
 | 3+ | CI/CD, Docker, Métricas | 6-8 h | 🟢 Baclog |
 
-**Total restante**: ~9,5 horas para "production-ready"
+**Total restante**: ~1,25 hora para "production-ready" (só consolidar DTOs redundantes e mover lógica do Mapper)
 
 ---
 
