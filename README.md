@@ -116,6 +116,7 @@ Ou, dentro de uma sessão interativa do Claude Code:
 | Documentação | ✅ Completa em `docs/`, regras em `docs/architecture/REGRAS-DO-SISTEMA.md` |
 | Error Handling | ✅ Profissional (inclui 409 de optimistic locking) |
 | Postgres real | ✅ Opcional via `docker compose up -d` + profile `postgres` |
+| CI | ✅ GitHub Actions (`.github/workflows/ci.yml`) — build, testes e integrationTest a cada push/PR |
 | Code Review IA | ✅ 9 agentes (manual em `docs/agents/` + subagents reais em `.claude/agents/`) |
 
 ---

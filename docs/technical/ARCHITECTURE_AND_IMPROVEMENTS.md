@@ -217,8 +217,8 @@ management.endpoints.web.exposure.include: health,prometheus,metrics (applicatio
 
 ### 🟢 Baclog (Semana 3+)
 
-- [ ] Métricas com Micrometer/Prometheus
-- [ ] CI/CD com GitHub Actions
+- [ ] Métricas com Micrometer/Prometheus (dependência já presente; faltam counters/timers custom por operação)
+- [x] CI/CD com GitHub Actions — 2026-07-23 (`.github/workflows/ci.yml`: build + test + integrationTest a cada push/PR)
 - [ ] Observabilidade com Otel
 - [ ] Docker + Kubernetes
 - [ ] Cache strategy

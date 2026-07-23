@@ -131,9 +131,20 @@ aqui.
 
 ## 10. OBSERVABILIDADE
 
-Escreva aqui os endpoints de health/métricas expostos, os timers e counters obrigatórios por operação crítica, o
-mecanismo de rastreamento (trace id, MDC) e os jobs agendados existentes (cron, escopo, o que cada um faz) assim que
-existirem — nunca deixe o código divergir do que está escrito aqui.
+**Endpoints** (2026-07-23): `/actuator/health`, `/actuator/prometheus`, `/actuator/metrics` — expostos em
+`application.yml`. Em `prod`, `management.endpoint.health.show-details` é `never` (nunca detalhar publicamente).
+
+**Timers e counters por operação** (2026-07-23): toda operação de escrita de `TaskService` passa por
+`withMetrics(action, block)`, que registra `task.<action>.timer` (duração) e `task.<action>.count` (contador,
+tag `status=ok|error`) — `task.create.*`, `task.complete.*`, `task.cancel.*`, `task.deactivate.*`. Nenhum método
+deve instrumentar métrica manualmente fora desse helper único (mesmo princípio do guard único da seção 2.1: um
+ponto de instrumentação, não um por método). Verificado manualmente em `/actuator/prometheus`
+(`task_create_count_total`, `task_create_timer_seconds`, etc.).
+
+**Rastreamento**: `TraceIdFilter` (`com.base.config`) injeta `traceId` no MDC a partir do header `X-Trace-Id`
+recebido (ou gera um novo), presente em toda linha de log via `logback-spring.xml`.
+
+**Jobs agendados**: nenhum ainda.
 
 ---
 
