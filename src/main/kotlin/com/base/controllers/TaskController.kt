@@ -35,6 +35,12 @@ class TaskController(
         return ResponseEntity.ok(mapper.toResponse(saved))
     }
 
+    @PostMapping("/{id}/cancel")
+    fun cancel(@PathVariable id: Long): ResponseEntity<TaskResponse> {
+        val saved = service.cancel(id)
+        return ResponseEntity.ok(mapper.toResponse(saved))
+    }
+
     @DeleteMapping("/{id}")
     fun deactivate(@PathVariable id: Long): ResponseEntity<TaskResponse> {
         val saved = service.deactivate(id)

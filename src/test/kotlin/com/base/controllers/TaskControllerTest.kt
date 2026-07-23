@@ -72,6 +72,21 @@ class TaskControllerTest @Autowired constructor(
             .andExpect(status().isNotFound)
     }
 
+    @Test
+    fun `cancel - OPEN task should return 200 with CANCELLED status`() {
+        val id = createTask()
+
+        mockMvc.perform(post("/api/v1/tasks/$id/cancel"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.status").value("CANCELLED"))
+    }
+
+    @Test
+    fun `cancel - unknown id should return 404`() {
+        mockMvc.perform(post("/api/v1/tasks/999999/cancel"))
+            .andExpect(status().isNotFound)
+    }
+
     // TEST-TASK-04: completar uma Task duas vezes deve responder 422 na segunda tentativa,
     // pelo mesmo guard de status terminal validado a nível de Service em TaskServiceTest —
     // aqui garantimos que o guard também se reflete corretamente no HTTP status do Controller.

@@ -94,6 +94,40 @@ class TaskServiceTest {
         verify(repository, never()).save(any())
     }
 
+    // TEST-TASK-06: cancelar uma Task OPEN deve transicionar para CANCELLED. Antes desta
+    // mudança não existia nenhum caminho no sistema capaz de produzir CANCELLED, apesar do
+    // enum TaskStatus já prever esse valor e o guard de status terminal já tratá-lo como
+    // fechado — a máquina de estados documentada em REGRAS-DO-SISTEMA.md ficava incompleta.
+    @Test
+    fun `cancel - OPEN task should transition to CANCELLED`() {
+        val open = taskEntity(1L, TaskStatus.OPEN)
+        whenever(repository.findById(1L)).thenReturn(Optional.of(open))
+        whenever(repository.save(any<Task>())).thenAnswer { it.arguments[0] as Task }
+
+        val result = service.cancel(1L)
+
+        assertEquals(TaskStatus.CANCELLED, result.status)
+    }
+
+    @Test
+    fun `cancel - task not found should throw ResourceNotFoundException`() {
+        whenever(repository.findById(99L)).thenReturn(Optional.empty())
+
+        assertThrows<ResourceNotFoundException> { service.cancel(99L) }
+    }
+
+    // TEST-TASK-07: cancelar uma Task já DONE deve ser bloqueada pelo mesmo guard de status
+    // terminal usado em complete()/deactivate() — DONE não pode virar CANCELLED depois do fato.
+    @Test
+    fun `cancel - already DONE task must throw TaskOperationException`() {
+        val done = taskEntity(1L, TaskStatus.DONE)
+        whenever(repository.findById(1L)).thenReturn(Optional.of(done))
+
+        assertThrows<TaskOperationException> { service.cancel(1L) }
+
+        verify(repository, never()).save(any())
+    }
+
     @Test
     fun `deactivate - OPEN task should be soft deleted`() {
         val open = taskEntity(1L, TaskStatus.OPEN)

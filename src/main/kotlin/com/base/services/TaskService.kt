@@ -47,6 +47,18 @@ class TaskService(
     }
 
     @Transactional
+    fun cancel(id: Long): TaskDTO {
+        val task = repository.findById(id)
+            .orElseThrow { ResourceNotFoundException("Task $id não encontrada") }
+        requireNotClosed(task, action = "cancel_task")
+
+        val updated = task.copy(status = TaskStatus.CANCELLED, updatedAt = LocalDateTime.now())
+        val saved = repository.save(updated)
+        log.info("action=cancel_task status=ok id={}", saved.id)
+        return mapper.toDto(saved)
+    }
+
+    @Transactional
     fun deactivate(id: Long): TaskDTO {
         val task = repository.findById(id)
             .orElseThrow { ResourceNotFoundException("Task $id não encontrada") }

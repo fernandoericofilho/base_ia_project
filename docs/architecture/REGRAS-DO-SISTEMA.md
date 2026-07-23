@@ -47,12 +47,12 @@ concorrente. Conflito de versão (`ObjectOptimisticLockingFailureException`) é 
 
 ## 3. CICLO DE VIDA DOS STATUS
 
-**Task** (2026-07-23): `TaskStatus` tem três valores — `OPEN` (inicial, toda Task nasce assim), `DONE`, `CANCELLED`.
-Transições implementadas: `OPEN → DONE` via `POST /api/v1/tasks/{id}/complete`. Não há endpoint que produza
-`CANCELLED` hoje — o valor existe no enum e é tratado como terminal pelo guard (seção 2.1), mas nenhum fluxo do
-sistema o atribui ainda; é reservado para uma operação de cancelamento futura. `DONE` e `CANCELLED` são terminais:
-nenhuma transição sai deles (guard de 2.1 bloqueia). Desativação (`DELETE /api/v1/tasks/{id}`, soft delete) é
-ortogonal ao `status` — não muda o status, só marca `active = false`.
+**Task** (2026-07-23, atualizado 2026-07-23): `TaskStatus` tem três valores — `OPEN` (inicial, toda Task nasce
+assim), `DONE`, `CANCELLED`. Transições implementadas: `OPEN → DONE` via `POST /api/v1/tasks/{id}/complete`,
+`OPEN → CANCELLED` via `POST /api/v1/tasks/{id}/cancel`. `DONE` e `CANCELLED` são terminais: nenhuma transição
+sai deles (guard de 2.1 bloqueia, incluindo o próprio `cancel` — não dá pra cancelar uma Task já `DONE`).
+Desativação (`DELETE /api/v1/tasks/{id}`, soft delete) é ortogonal ao `status` — não muda o status, só marca
+`active = false`.
 
 ---
 

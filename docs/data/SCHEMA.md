@@ -45,7 +45,8 @@ Criada em `V2__create_task.sql` — recurso de referência que demonstra o check
 
 Observações:
 - Soft delete real: `DELETE /api/v1/tasks/{id}` faz `active = false` + `deactivated_at = now()`, nunca `DELETE` físico.
-- Guard de status terminal: `complete` e a desativação são bloqueados se `status` já for `DONE` ou `CANCELLED` (`TaskOperationException` → 422) — ver `.claude/agents/backend.agent.md`.
+- Guard de status terminal: `complete`, `cancel` e a desativação são bloqueados se `status` já for `DONE` ou `CANCELLED` (`TaskOperationException` → 422) — ver `.claude/agents/backend.agent.md`.
+- Transições: `OPEN → DONE` (`POST /{id}/complete`), `OPEN → CANCELLED` (`POST /{id}/cancel`). Nenhuma transição sai de um status terminal.
 - Sem índice além da PK: volume de exemplo didático não justifica nenhum ainda; se o projeto crescer, `idx_task_status` é candidato natural para listagens filtradas por status.
 
 ### Próximas tabelas
