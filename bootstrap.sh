@@ -34,6 +34,19 @@ setup_claude_plugins() {
   echo "action=bootstrap status=claude_plugins_ready"
 }
 
+setup_git_hooks() {
+  # Activates the versioned hooks in .githooks/ (TESTING_RULE, EAGER, @Disabled — REGRAS §2.3).
+  # Idempotent. Skipped when the folder is not a git checkout (e.g. a zip download).
+  echo "action=bootstrap status=setup_git_hooks"
+  if ! git -C "$ROOT_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+    echo "action=bootstrap status=skip_git_hooks reason=not_a_git_repo"
+    return 0
+  fi
+  git -C "$ROOT_DIR" config core.hooksPath .githooks
+  chmod +x "$ROOT_DIR/.githooks/pre-commit" 2>/dev/null || true
+  echo "action=bootstrap status=git_hooks_ready"
+}
+
 run_tests() {
   echo "action=bootstrap status=run_tests"
   "$GRADLEW" -p "$ROOT_DIR" clean test --no-daemon
@@ -47,6 +60,7 @@ run_server() {
 case "${1:-}" in
   --run)
     setup_claude_plugins
+    setup_git_hooks
     run_tests
     echo "Tests passed. Starting application..."
     run_server
@@ -57,6 +71,7 @@ case "${1:-}" in
     ;;
   "")
     setup_claude_plugins
+    setup_git_hooks
     run_tests
     ;;
   *)

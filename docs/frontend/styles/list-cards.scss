@@ -1,0 +1,341 @@
+// =============================================================================
+// Padrão de cards para listagens (2026-10-22). Núcleo reutilizável, com cores via tokens.
+// Copiar para src/app/shared/styles/list-cards.scss. Não é compilado neste repositório.
+// Regras: ../FRONTEND.md §4
+//
+// Estrutura do card (3 linhas):
+//   LINHA 1  .item-card__header-row  → nome como link (.card-name-link) + badges à direita
+//   LINHA 2  .item-card__meta-row    → .code-chip à esquerda + .item-card__amount à direita
+//   LINHA 3  .items-legend           → contadores opcionais, alinhados à esquerda
+//   RODAPÉ   .row-actions            → botões de ação (classe global, ver global-styles.scss)
+//
+// Entidades novas ESTENDEM estas classes com @extend; não criam CSS próprio.
+// =============================================================================
+
+$bp-compact: 500px;
+$bp-mobile: 600px;
+
+// Lista e filtros ----------------------------------------------------------------
+
+.items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 12px;
+
+  @media (max-width: $bp-compact) {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+}
+
+.filter {
+  flex: 1;
+  min-width: 200px;
+
+  &--name {
+    flex: 2;
+  }
+
+  &--document {
+    flex: 1;
+  }
+}
+
+// Card -----------------------------------------------------------------------------
+
+.item-card {
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border: 1px solid var(--app-divider);
+  border-radius: 8px;
+  background: var(--app-surface-subtle);
+  transition: box-shadow 0.2s, border-color 0.2s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-color: var(--app-primary);
+  }
+
+  @media (max-width: $bp-compact) {
+    gap: 6px;
+    padding: 14px 16px; // simétrico: padding assimétrico grande estoura o layout em mobile
+  }
+}
+
+// LINHA 1 ---------------------------------------------------------------------------
+
+.item-card__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--app-divider);
+
+  @media (max-width: $bp-compact) {
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+}
+
+.card-name-link {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--app-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+
+  &:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+  }
+
+  @media (max-width: $bp-compact) {
+    gap: 12px;
+    font-size: 18px;
+    line-height: 1.6;
+
+    mat-icon {
+      width: 26px;
+      height: 26px;
+      font-size: 26px;
+    }
+  }
+}
+
+// Nome que NÃO é link: mesmo layout, sem cursor/hover/cor de link.
+.item-card__name-static {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--app-text);
+
+  mat-icon {
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+  }
+}
+
+.item-card__header-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  @media (max-width: $bp-compact) {
+    justify-content: flex-end;
+    gap: 4px;
+  }
+}
+
+// LINHA 2 ---------------------------------------------------------------------------
+
+.item-card__meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  @media (max-width: $bp-compact) {
+    flex-wrap: wrap;
+    gap: 6px;
+    row-gap: 8px;
+    margin-bottom: 6px;
+  }
+}
+
+// Chip de código/ID/documento: fundo sempre presente (sem fundo fica ilegível).
+.code-chip {
+  display: inline-block;
+  padding: 4px 8px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  font-family: var(--app-font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  color: #3a3a3a;
+
+  @media (max-width: $bp-mobile) {
+    font-size: 13px;
+  }
+}
+
+// Valor monetário com cor por status. `!important` aqui é deliberado: o Material
+// aplica estilos de botão/chip que sem ele sobrescreveriam o tamanho.
+.item-card__amount {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 6px 10px !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1.2;
+  white-space: nowrap !important;
+
+  &.amount--good {
+    color: var(--app-success);
+    background: var(--app-success-light);
+  }
+
+  &.amount--warning {
+    color: var(--app-warning-text);
+    background: var(--app-warning-light);
+  }
+
+  &.amount--danger {
+    color: var(--app-danger);
+    background: var(--app-danger-light);
+  }
+}
+
+// LINHA 3 (legenda) ---------------------------------------------------------------
+
+// Alinhada à ESQUERDA, sob o chip de código: identidade e contagens numa coluna,
+// status e valor na outra. Não jogar tudo para a direita.
+.items-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px;
+
+  @media (max-width: $bp-mobile) {
+    gap: 8px;
+  }
+
+  @media (max-width: $bp-compact) {
+    gap: 4px;
+    width: 100%;
+  }
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: default;
+  // Obrigatório: sem isso, <span> e <button> ficam com alturas diferentes
+  // (o reset de `font` do navegador é aplicado só ao <button>).
+  line-height: 1 !important;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+
+  // Quando é botão: mesmo visual, com estado de desabilitado.
+  &:is(button) {
+    border: none;
+    font: inherit;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover:not(:disabled) {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  @media (max-width: $bp-compact) {
+    padding: 8px 12px;
+    font-size: 14px;
+
+    mat-icon {
+      width: 20px;
+      height: 20px;
+      font-size: 20px;
+    }
+  }
+
+  // Variantes: cor do texto, ícone e fundo sempre vêm do mesmo token.
+  &--success {
+    color: var(--app-success);
+    background: var(--app-success-light);
+
+    mat-icon { color: var(--app-success); }
+  }
+
+  &--warning {
+    color: var(--app-warning);
+    background: var(--app-warning-light);
+
+    mat-icon { color: var(--app-warning); }
+  }
+
+  &--danger {
+    color: var(--app-danger);
+    background: var(--app-danger-light);
+
+    mat-icon { color: var(--app-danger); }
+  }
+
+  &--info {
+    color: var(--app-info);
+    background: var(--app-info-light);
+
+    mat-icon { color: var(--app-info); }
+  }
+
+  &--neutral {
+    color: var(--app-muted);
+    background: var(--app-surface-subtle);
+
+    mat-icon { color: var(--app-muted); }
+  }
+}
+
+// RODAPÉ ----------------------------------------------------------------------------
+
+.item-card__footer {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--app-divider);
+}
+
+// Texto secundário dentro do card.
+.item-card__muted {
+  font-size: 13px;
+  color: var(--app-muted);
+
+  @media (max-width: $bp-mobile) {
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,370 @@
+// =============================================================================
+// Estilos globais de referência para um app Angular (2026-10-22).
+// Copiar para src/styles.scss de um app Angular. Este arquivo NÃO é compilado neste repositório.
+// Regras e porquês: ../FRONTEND.md
+// =============================================================================
+
+// ---------------------------------------------------------------------------
+// 1. Tokens — fonte única de verdade para cor, fonte e status
+// ---------------------------------------------------------------------------
+:root {
+  --app-bg: #f6f8fb;
+  --app-surface: #ffffff;
+  --app-surface-subtle: #fafafa;
+  --app-text: #172033;
+  --app-muted: #64748b;
+  --app-primary: #1e3a5f;
+  --app-border: #e2e8f0;
+  --app-divider: #e0e0e0;
+  --app-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+
+  // Fonte única. Trocar a fonte = editar estas duas linhas + o link do Google Fonts no index.html.
+  --app-font: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --app-font-mono: ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  // Status. Única fonte de verde/vermelho/laranja/azul do app.
+  --app-success: #2e7d32;
+  --app-success-light: #e8f5e9;
+  --app-danger: #c62828;
+  --app-danger-light: #ffebee;
+  --app-warning: #f57c00;
+  --app-warning-light: #fff3e0;
+  --app-warning-text: #8a4b00;
+  --app-info: #1d4ed8;
+  --app-info-light: #dbeafe;
+}
+
+// Escala de espaçamento (8px). Usar as classes ou as variáveis em vez de valores soltos.
+$spacing-2xs: 2px;
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$spacing-2xl: 32px;
+
+$bp-compact: 500px;
+$bp-mobile: 600px;
+$bp-tablet: 900px;
+
+// ---------------------------------------------------------------------------
+// 2. Tema Material apontado para a fonte única
+// O prebuilt do Angular Material coloca Roboto em dezenas de tokens --mat-*/--mdc-*-font.
+// Os mais usados estão aqui; o resto segue o mesmo padrão.
+// ---------------------------------------------------------------------------
+:root {
+  --mat-card-title-text-font: var(--app-font);
+  --mat-card-subtitle-text-font: var(--app-font);
+  --mat-form-field-container-text-font: var(--app-font);
+  --mat-form-field-subscript-text-font: var(--app-font);
+  --mat-select-trigger-text-font: var(--app-font);
+  --mat-table-header-headline-font: var(--app-font);
+  --mat-tab-header-label-text-font: var(--app-font);
+  --mat-toolbar-title-text-font: var(--app-font);
+  --mdc-filled-button-label-text-font: var(--app-font);
+  --mdc-outlined-button-label-text-font: var(--app-font);
+  --mdc-text-button-label-text-font: var(--app-font);
+  --mdc-filled-text-field-label-text-font: var(--app-font);
+  --mdc-outlined-text-field-label-text-font: var(--app-font);
+  --mdc-chip-label-text-font: var(--app-font);
+  --mdc-dialog-supporting-text-font: var(--app-font);
+  --mdc-snackbar-supporting-text-font: var(--app-font);
+}
+
+// Armadilha: o prebuilt define `.mat-typography h1..h6 { font: ... Roboto }` com especificidade
+// maior que `.mat-typography`. Sem a regra abaixo, todo título sai em Roboto.
+.mat-typography {
+  font-family: var(--app-font);
+}
+
+.mat-typography h1,
+.mat-typography h2,
+.mat-typography h3,
+.mat-typography h4,
+.mat-typography h5,
+.mat-typography h6 {
+  font-family: var(--app-font);
+}
+
+// ---------------------------------------------------------------------------
+// 3. Base
+// ---------------------------------------------------------------------------
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--app-font);
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+}
+
+// Remove os spinners de inputs numéricos (visual mais limpo e evita clique acidental).
+input[type='number'] {
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  -moz-appearance: textfield;
+}
+
+// ---------------------------------------------------------------------------
+// 4. Layout
+// ---------------------------------------------------------------------------
+
+// Contêiner de página: uma regra global. Nenhuma tela redefine .page.
+.page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-lg;
+
+  @media (min-width: $bp-mobile) {
+    padding: $spacing-xl;
+  }
+}
+
+.page__title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--app-text);
+}
+
+// Cabeçalho de LISTAGEM (título + botão "Novo"). Não usar em tela de detalhe.
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-md;
+  min-height: 42px;
+
+  @media (max-width: $bp-mobile) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+// Cabeçalho de DETALHE de entidade. Não é intercambiável com .list-head.
+.detail-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-md;
+
+  @media (max-width: $bp-mobile) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+// Linha de botões de ação: horizontal no desktop, coluna full-width no mobile.
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+
+  @media (max-width: $bp-mobile) {
+    flex-direction: column;
+
+    > button,
+    > a {
+      width: 100%;
+    }
+  }
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-md;
+
+  @media (min-width: $bp-mobile) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: $bp-tablet) {
+    &--metrics {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.muted {
+  color: var(--app-muted);
+}
+
+// ---------------------------------------------------------------------------
+// 5. Toque e botões
+// ---------------------------------------------------------------------------
+
+// Alvo de toque mínimo de 44px em botões e ícones de ação.
+.mat-mdc-icon-button {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-button {
+  min-height: 44px;
+}
+
+// ---------------------------------------------------------------------------
+// 6. Formulários e avisos inline
+// ---------------------------------------------------------------------------
+
+// Erro de validação fica no campo (mat-error). Este bloco é só para aviso fora de campo.
+.form-error {
+  margin: 4px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--app-danger);
+}
+
+.form-notice {
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--app-surface-subtle);
+  color: var(--app-muted);
+}
+
+// ---------------------------------------------------------------------------
+// 7. Diálogos
+// ---------------------------------------------------------------------------
+.mat-mdc-dialog-container {
+  max-width: 96vw !important;
+  min-width: 280px !important;
+}
+
+// Diálogo de formulário com largura fixa, para que não tenham tamanhos diferentes entre si.
+.mat-mdc-dialog-container:has(.dialog-form) {
+  width: 480px !important;
+}
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: $spacing-xl;
+}
+
+.mat-mdc-dialog-title {
+  margin: 0 !important;
+  padding: 12px 32px 8px !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.2 !important;
+  color: var(--app-text) !important;
+
+  @media (max-width: $bp-mobile) {
+    padding: 12px 20px 8px !important;
+    font-size: 18px !important;
+  }
+
+  @media (max-width: $bp-compact) {
+    padding: 12px 16px 8px !important;
+    font-size: 16px !important;
+  }
+}
+
+.mat-mdc-dialog-content {
+  max-height: 70vh;
+  padding: 0 32px !important;
+
+  @media (max-width: $bp-mobile) {
+    padding: 0 20px !important;
+  }
+
+  @media (max-width: $bp-compact) {
+    max-height: 75vh;
+    padding: 0 16px !important;
+  }
+}
+
+.mat-mdc-dialog-actions {
+  padding: 8px 16px 16px !important;
+}
+
+// ---------------------------------------------------------------------------
+// 8. Snackbar por tipo (cores vêm dos tokens de status)
+// ---------------------------------------------------------------------------
+.app-snackbar {
+  --mdc-snackbar-container-color: var(--app-surface);
+  --mdc-snackbar-supporting-text-color: var(--app-text);
+  --mat-snack-bar-button-color: var(--app-primary);
+  border-left: 4px solid var(--app-border);
+}
+
+.app-snackbar--success {
+  --mdc-snackbar-container-color: var(--app-success-light);
+  --mdc-snackbar-supporting-text-color: var(--app-success);
+  border-left-color: var(--app-success);
+}
+
+.app-snackbar--error {
+  --mdc-snackbar-container-color: var(--app-danger-light);
+  --mdc-snackbar-supporting-text-color: var(--app-danger);
+  border-left-color: var(--app-danger);
+}
+
+.app-snackbar--warning {
+  --mdc-snackbar-container-color: var(--app-warning-light);
+  --mdc-snackbar-supporting-text-color: var(--app-warning-text);
+  border-left-color: var(--app-warning);
+}
+
+// ---------------------------------------------------------------------------
+// 9. Links
+// ---------------------------------------------------------------------------
+a:not([class]) {
+  color: var(--app-primary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 10. Utilitários de espaçamento (usar quando o valor estiver na escala)
+// ---------------------------------------------------------------------------
+.gap-sm { gap: $spacing-sm; }
+.gap-md { gap: $spacing-md; }
+.gap-lg { gap: $spacing-lg; }
+.gap-xl { gap: $spacing-xl; }
+
+.p-sm { padding: $spacing-sm; }
+.p-md { padding: $spacing-md; }
+.p-lg { padding: $spacing-lg; }
+.p-xl { padding: $spacing-xl; }
+
+.m-sm { margin: $spacing-sm; }
+.m-md { margin: $spacing-md; }
+.m-lg { margin: $spacing-lg; }
+.m-xl { margin: $spacing-xl; }

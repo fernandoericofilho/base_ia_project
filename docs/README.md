@@ -21,7 +21,7 @@ Arquitetura, padrões, exemplos de como adicionar features, checklist pré-PR.
   - Exercício prático
   - **Prompts prontos** para cada persona
 
-**Agents disponíveis** (em `agents/*.agent.md`):
+As personas de `.claude/agents/` (fonte usada pelo Claude Code) têm seção "Lições de projetos anteriores". As cópias abaixo são de aula e estão em `agents/*.agent.md`:
 - Backend Principal Engineer
 - Staff Tech Lead  
 - Product Owner Tech
@@ -31,6 +31,17 @@ Arquitetura, padrões, exemplos de como adicionar features, checklist pré-PR.
 - Frontend Principal Engineer
 - Platform SRE
 - AI Engineer
+
+## 🧭 Regras e gates
+
+Regras que valem neste template estão em [REGRAS-DO-SISTEMA.md](architecture/REGRAS-DO-SISTEMA.md) (§2.3 gates, §4 banco, §8 frontend, §11 testes).
+
+## 🎨 Frontend (referência, 2026-10-22)
+
+- **[FRONTEND.md](frontend/FRONTEND.md)** — Tokens, tipografia, layout responsivo, card de 3 linhas, formulários, diálogos
+- **[styles/](frontend/styles/)** — CSS de referência: `global-styles.scss` (tokens, `.page`, diálogos) e `list-cards.scss`
+
+O template não tem frontend. Esses arquivos são para copiar quando o primeiro app Angular nascer.
 
 ## 📊 Análise e Decisões Técnicas
 
