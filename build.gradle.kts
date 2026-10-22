@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.9.24"
     kotlin("plugin.spring") version "1.9.24"
     kotlin("plugin.jpa") version "1.9.24"
+    jacoco
 }
 
 group = "com.base"
@@ -31,9 +32,13 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("com.h2database:h2")
+    // Flyway 10+: suporte ao PostgreSQL vive neste módulo (sem ele: "Unsupported Database: PostgreSQL 16.x").
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(kotlin("test"))
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
+    // Regras de arquitetura (camadas, injeção por construtor, LAZY, sem Double em dinheiro) — REGRAS §2.3
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.3.0")
 
     // Testes de integracao (Testcontainers) - app continua em H2 no dia a dia;
     // Postgres real e usado apenas nesta camada de teste, via Docker.
@@ -66,3 +71,53 @@ tasks.register<Test>("integrationTest") {
     shouldRunAfter(tasks.test)
 }
 
+
+// Cobertura de linha (REGRAS §11, 2026-10-22). Conta só o `test` (unitário); integração não entra.
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+// Fora do cálculo: código sem regra própria (REGRAS §11). Controllers são pass-through,
+// cobertos pelo integrationTest, então não contam no piso do `test`.
+val coverageExcludes = listOf(
+    "com/base/ModeloApplication*",
+    "com/base/models/**",
+    "com/base/dtos/**",
+    "com/base/controllers/**",
+    "com/base/exceptions/**",
+    "com/base/config/**",
+)
+
+val coverageClassDirectories = provider {
+    sourceSets.main.get().output.classesDirs.asFileTree.matching { exclude(coverageExcludes) }
+}
+
+tasks.test {
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    classDirectories.setFrom(coverageClassDirectories)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.test)
+    classDirectories.setFrom(coverageClassDirectories)
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = providers.gradleProperty("coverageFloor").get().toBigDecimal()
+            }
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(tasks.jacocoTestCoverageVerification)
+}

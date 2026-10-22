@@ -21,10 +21,13 @@ projects (`./bootstrap.sh` to run tests, `./bootstrap.sh --run` to also start th
 # Run (H2 in-memory by default)
 ./gradlew bootRun
 
-# Tests
+# Tests (unit + architecture rules; no Docker needed)
 ./gradlew test
 
-# Build
+# Integration tests (Postgres via Testcontainers; requires Docker)
+./gradlew integrationTest
+
+# Build (includes check: tests + JaCoCo coverage floor 70%)
 ./gradlew build
 
 # Convenience script: runs tests, and with --run also starts the app
@@ -93,8 +96,8 @@ hard defaults; only relax one if the new project has a documented reason to.
   reviews for its presence.
 - **LAZY loading everywhere** — every `@ManyToOne`/`@OneToOne` (or ORM equivalent) uses lazy fetch. Never eager by
   default.
-- **Coverage floor enforced by the build** — pick a number appropriate to the project (this template's own build
-  used 90% line coverage as a starting point) and exclude only what genuinely shouldn't count (models, DTOs,
+- **Coverage floor enforced by the build** — this template's build enforces 70% line coverage (JaCoCo, measured
+  2026-10-22 at 71.7%; target 90%; see `docs/architecture/REGRAS-DO-SISTEMA.md` §11) and exclude only what genuinely shouldn't count (models, DTOs,
   controllers if they're pure pass-through, exceptions, config, adapters to third parties).
 
 ## Naming Conventions

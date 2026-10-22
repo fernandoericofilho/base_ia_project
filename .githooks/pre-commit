@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Pre-commit: gates de REGRAS-DO-SISTEMA.md §2.3.
+# Ativado por ./bootstrap.sh (git config core.hooksPath .githooks).
+set -euo pipefail
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACMR)
+EXIT_CODE=0
+
+fail() {
+  echo "❌ $1"
+  EXIT_CODE=1
+}
+
+# 1. TESTING_RULE: Service/Repository alterado exige teste no mesmo commit
+SERVICES=$(echo "$STAGED" | grep -E '^src/main/kotlin/.*/(services/.*Service|repositories/.*Repository)\.kt$' || true)
+if [ -n "$SERVICES" ]; then
+  TESTS=$(echo "$STAGED" | grep -E '^src/test/kotlin/.*/(services|repositories)/.*Test\.kt$' || true)
+  if [ -z "$TESTS" ]; then
+    fail "TESTING_RULE: Service/Repository alterado sem teste no mesmo commit."
+    echo "$SERVICES" | sed 's/^/   /'
+    echo "   Crie um teste que reproduza o cenário (TEST-<AREA>-NN) e inclua-o com git add."
+  fi
+fi
+
+# 2. JPA: FetchType.EAGER não entra em model (o teste de arquitetura também cobre)
+MODELS=$(echo "$STAGED" | grep -E '^src/main/kotlin/.*/models/.*\.kt$' || true)
+if [ -n "$MODELS" ]; then
+  if git diff --cached -U0 -- $MODELS | grep -E '^\+.*FetchType\.EAGER' > /dev/null; then
+    fail "FetchType.EAGER adicionado em model. Use FetchType.LAZY (REGRAS §2.3)."
+  fi
+fi
+
+# 3. Teste desabilitado não entra sem issue (REGRAS §11)
+DISABLED=$(git diff --cached -U0 -- src/test | grep -E '^\+.*@Disabled' || true)
+if [ -n "$DISABLED" ]; then
+  fail "@Disabled adicionado em teste. Corrija o teste ou abra issue com data e dono antes de commitar."
+  echo "$DISABLED" | sed 's/^/   /'
+fi
+
+if [ $EXIT_CODE -eq 0 ]; then
+  echo "✅ pre-commit: TESTING_RULE, JPA e testes habilitados"
+fi
+
+exit $EXIT_CODE

@@ -1,0 +1,7 @@
+# Fins de linha (REGRAS §2.3, 2026-10-22).
+# Script com CRLF quebra no Linux (container, CI): "gradlew: not found" / exit 127.
+* text=auto eol=lf
+*.bat text eol=crlf
+*.sh text eol=lf
+gradlew text eol=lf
+.githooks/* text eol=lf
