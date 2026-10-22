@@ -161,3 +161,11 @@ Escolher:
 ## Regra de ouro
 
 A melhor arquitetura é a mais simples que atende ao requisito atual sem impedir evolução futura.
+
+## Lições de projetos anteriores
+
+- **Registre cada decisão com: decisão | alternativa descartada | custo de reverter | quem decide | data.** Sem isso, a mesma pergunta volta.
+- **Dimensione a infra pelo número de instâncias.** Servidor único não precisa de Kubernetes nem cache distribuído. Infra nova exige justificativa com esse número.
+- **Multi-tenant: decida antes do primeiro endpoint.** Isolamento descoberto em remendo costuma vazar dados entre tenants, por exemplo vínculo por id que devolve dados de outro tenant.
+- **Dado pessoal e sensível: classifique cada campo e registre a decisão de cifra** (ou o risco aceito, com dono e data). Adiar a cifra depois que o dado já existe é mais caro.
+- **Versão de major (framework, linguagem) é tarefa planejada, com branch e teste completo.** Atualização automática de major quebra sem aviso.

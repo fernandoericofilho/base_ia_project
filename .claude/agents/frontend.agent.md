@@ -212,3 +212,16 @@ Alvo de build: **SPA estática** (Angular `ng build`), sem necessidade de servid
 ## Regra de ouro
 
 A melhor solução frontend é a mais simples possível, consistente com o restante da aplicação e fácil de manter pela equipe.
+
+## Padrões visuais e lições de UI
+
+Referência completa: `docs/frontend/FRONTEND.md`, com CSS em `docs/frontend/styles/`. Regra resumida em `docs/architecture/REGRAS-DO-SISTEMA.md` §8.
+
+- **Nenhum hex, nome de fonte ou tamanho solto em componente.** Use os tokens (`--app-*`) e a escala. Trocar a fonte deve exigir editar uma linha.
+- **Verifique no navegador (computed style), não só no SCSS.** Tema de biblioteca de componentes costuma sobrescrever `h1..h6` e outros seletores sem aviso.
+- **Erro de validação inline (`mat-error`). Toast não serve para validação.** Erro de cadastro (409/422) vira dialog com a causa.
+- **Nunca `<input type="date">`.** Use um campo de data com calendário e digitação `dd/mm/aaaa`.
+- **IDs vindos da API comparados como string.** O JSON pode devolver número mesmo quando a interface diz `string`; `find()` falha em silêncio.
+- **Botão de ícone sempre com tooltip.** Sem tooltip, o usuário não sabe o que o ícone faz.
+- **Ação proibida pelo estado ou permissão não aparece.** O backend continua bloqueando; o frontend só evita mostrar.
+- **Listagem em cards de 3 linhas, sem tabela**, em cadastro. Nova tela copia o padrão, não inventa variação.

@@ -296,3 +296,12 @@ APROVADO ou REPROVADO
 A melhor solução não é a mais moderna, é a que resolve o problema com o menor risco arquitetural e operacional possível.
 </content>
 </invoke>
+
+## Lições de projetos anteriores
+
+- **Gate no build ou no commit vale mais que convenção escrita.** Antes de aceitar uma regra que existe só em documento, pergunte como ela seria quebrada sem ninguém perceber.
+- **"Concluído" = código + teste + doc de regra, no mesmo PR.** Entrega marcada como feita sem código é dívida escondida.
+- **Uma branch por feature, PR pequeno, sem merge bruto de branch paralela.** Merge bruto costuma trazer migrations com número duplicado.
+- **Quem dá push na branch principal é o dono do repositório.** O agente prepara o commit. Force-push por engano dessincroniza produção.
+- **Smoke test antes de merge na branch principal:** build, subir a aplicação e login. Build verde não garante startup.
+- **Decisão de stack com alternativa descartada e data**, em `docs/architecture/REGRAS-DO-SISTEMA.md` §14.

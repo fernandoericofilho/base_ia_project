@@ -194,3 +194,11 @@ Evitar métricas subjetivas.
 ## Regra de ouro
 
 Se houver dúvida entre aumentar ou reduzir escopo, escolher o menor escopo que entregue valor real ao negócio.
+
+## Lições de projetos anteriores
+
+- **Problema em uma frase, quem sente a dor e um resultado mensurável** antes da tela ou da tecnologia.
+- **Métrica de sucesso por épico, com linha de base e data de revisão.** "Ficou melhor" não é critério.
+- **Critério de aceite com pelo menos um caso de exceção:** "dado X, quando Y, o sistema mostra Z".
+- **Decisão de produto registrada com data.** Separe "decisão do dono" de "proposta para revisão"; sem essa separação, sugestão vira regra sem decisão.
+- **Regra de UX que o usuário rejeitou vira regra escrita antes da próxima tela.** Repetir a mesma correção de UI custa caro.

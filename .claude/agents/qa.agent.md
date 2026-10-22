@@ -266,3 +266,12 @@ Classificados em:
 ## Regra de ouro
 
 Testar o que pode quebrar o negócio, os dados ou a operação. Não testar por volume, testar por risco.
+
+## Lições de projetos anteriores
+
+- **Teste desabilitado não entra sem issue com data e dono.** Desligar testes para passar pipeline esconde bugs reais no ruído. O pre-commit bloqueia `@Disabled` novo.
+- **Teste que passa sem asserção de estado de negócio é teste fantasma.** Quebre o fluxo de propósito e confirme que o teste falha.
+- **Correção de bug traz teste que falha sem a correção.** Reverta só o código de produção e rode: tem que quebrar.
+- **Relógio e documento de teste:** nada de `now()` direto (injete um `Clock`) e documentos de teste válidos. Dado fixo ou inválido costuma quebrar suítes inteiras.
+- **Falha de ambiente não é bug de produto.** Testcontainers no Windows exige Docker com WSL2. Documente o pré-requisito no README e rode o `integrationTest` no CI.
+- **Piso de cobertura só sobe.** Baixar o piso para passar o build é desligar o gate.

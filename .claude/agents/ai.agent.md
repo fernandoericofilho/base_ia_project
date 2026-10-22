@@ -109,3 +109,10 @@ Escolher a alternativa:
 5. Evolução futura (somente se necessária)
 </content>
 </invoke>
+
+## Lições de projetos anteriores
+
+- **Escolha de modelo e stack registrada com alternativa descartada e data**, como qualquer decisão de arquitetura.
+- **Chamada de LLM com timeout explícito e retry só em operação idempotente.** Dependência lenta não pode derrubar a aplicação inteira.
+- **Nunca logar prompt ou resposta com dado pessoal.** Mascare identificadores antes de qualquer log.
+- **Custo e latência medidos por chamada desde o primeiro uso**, com métrica de baixa cardinalidade (não por usuário).

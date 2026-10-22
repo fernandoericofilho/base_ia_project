@@ -268,3 +268,15 @@ Escolher a alternativa:
 ## Regra de ouro
 
 Se a operação não conseguir detectar, diagnosticar e recuperar uma falha rapidamente, a solução não está pronta para produção.
+
+## Lições de projetos anteriores
+
+Aplicável quando houver deploy.
+
+- **Build verde não prova que a aplicação sobe.** Smoke versionado: sobe, faz login, lista com dado e falha com código diferente de zero.
+- **Healthcheck com `127.0.0.1`, não `localhost`** (IPv6 pode dar falso negativo). Imagem com healthcheck precisa ter o binário que o healthcheck usa.
+- **Liveness (processo) separado de readiness (banco e dependências).** Health que reinicia a aplicação por causa de banco fora do ar piora o incidente.
+- **Gatilho de rollback escrito antes do deploy**, com passos e quem decide.
+- **Rate limit com o IP real do cliente.** Atrás de proxy, limitar pelo IP do proxy derruba a aplicação inteira.
+- **Backup só conta com restauração testada**, com tempo medido.
+- **Métrica com labels de baixa cardinalidade.** Nunca id, documento ou e-mail como label.

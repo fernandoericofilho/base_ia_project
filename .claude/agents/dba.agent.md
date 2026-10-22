@@ -188,3 +188,12 @@ Escolher:
 Dados corretos são mais importantes que consultas rápidas. Otimização vem depois da integridade.
 </content>
 </invoke>
+
+## Lições de projetos anteriores
+
+- **Política de migration escrita no início:** baseline + `V(n+1)`. Reconsolidar o schema só enquanto não houver dado real. Reconsolidar depois de dado real costuma perder seeds sem erro visível.
+- **Antes de consolidar ou mover seed:** contar linhas antes e depois, inclusive catálogos. A contagem vai no plano de deploy.
+- **Massa de teste e demo fora de `db/migration`** (`scripts/seed/` ou endpoint). Migration de massa tende a ser revertida.
+- **Migration nova validada em banco descartável** antes da entrega. Ordem de FK e `GRANT` errados costumam aparecer só no deploy.
+- **Expand/contract:** nada de `DROP` no mesmo deploy que o código que usa a estrutura nova. O rollback precisa funcionar.
+- **Índice em toda FK e em toda listagem com filtro**, e índice novo só com query real que o justifique.

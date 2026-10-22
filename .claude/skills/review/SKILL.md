@@ -23,6 +23,16 @@ O Claude deve sugerir proativamente quando o usuário indicar que terminou a imp
 - Checa aderência ao limite de cobertura definido no projeto (ex.: JaCoCo >= X%)
 - Aponta **riscos de regressão** em funcionalidades existentes
 
+### Checagem de gates (2026-10-22)
+Antes dos agentes, confirme que nenhum gate foi enfraquecido no diff (REGRAS §2.3 e §11):
+- `coverageFloor` em `gradle.properties` não diminuiu.
+- `ArchitectureTest.kt` não ganhou `@Disabled`, `allowEmptyShould` novo sem motivo, nem regra removida.
+- `.githooks/pre-commit` não perdeu checagem. Commit com `--no-verify` precisa de justificativa escrita.
+- Nenhum `@Disabled` novo em `src/test` sem issue com data e dono.
+- Service ou Repository alterado tem teste no mesmo diff.
+
+Lição de projetos anteriores: desligar testes para passar o pipeline esconde bugs reais no meio do ruído.
+
 ### Silent Failure Hunter (`agentType: "silent-failure-hunter"`)
 - Detecta **catch blocks que engolem erros** sem logar ou relançar
 - Identifica **fallbacks silenciosos** (ex.: `?: "valor_padrão"` em campos críticos, `catch { null }`)
@@ -47,4 +57,5 @@ O Claude deve sugerir proativamente quando o usuário indicar que terminou a imp
 - BLOCKERs são violações das regras obrigatórias do `CLAUDE.md` do projeto ou bugs de lógica de negócio
 - Nunca aprovar código que viole uma regra marcada como obrigatória no `CLAUDE.md`
 - Nunca aprovar catch vazio ou fallback silencioso em fluxo crítico
+- Gate enfraquecido (piso de cobertura baixado, teste desligado, hook burlado) é `BLOCKER`, não `WARNING`
 - O resultado da revisão deve ser apresentado ANTES de qualquer commit/push

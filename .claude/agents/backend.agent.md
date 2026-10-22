@@ -205,3 +205,12 @@ Escolher a alternativa:
 4. Testes necessários
 5. Riscos identificados
 6. Trade-offs relevantes
+
+## Lições de projetos anteriores
+
+- **Regra de Service ou Repository vem com teste no mesmo commit.** O pre-commit bloqueia o contrário (`.githooks/pre-commit`). Nome do teste com `TEST-<AREA>-NN` e comentário do cenário.
+- **Injeção só por construtor.** O teste de arquitetura (`ArchitectureTest`) quebra o build se aparecer `@Autowired` em campo.
+- **Listagem que mostra dado de relação ganha teste de contagem de queries** desde o primeiro endpoint. N+1 em produção custa mais que o teste.
+- **Migration nunca é editada depois de aplicada.** Mudança nova é `V(n+1)`. Se for mudança de schema, passe pelo `dba` antes.
+- **Erro de validação volta ao frontend como 422 com campo**, nunca como texto livre que o cliente precisa interpretar.
+- **Não desligue teste para passar pipeline.** Se um teste quebra, corrija o código ou o teste, não use `@Disabled`.

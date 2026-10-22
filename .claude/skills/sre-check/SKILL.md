@@ -36,6 +36,15 @@ Responsável pela revisão de observabilidade e operação:
 - Aponta se alguma operação poderia ser lenta em produção (N+1 queries, full table scan)
 - Sugere índices de banco ausentes que impactariam performance em escala
 
+**Checklist de lições de projetos anteriores** (2026-10-22). Cada item já atrasou ou derrubou um deploy:
+- **Build verde não prova que a aplicação sobe.** Exigir smoke: subir, login e listagem com dado. Sem isso: `BLOCKER` antes de merge na `main`.
+- **Healthcheck com `localhost`** → `WARNING`. Usar `127.0.0.1` (IPv6 primeiro dá falso negativo).
+- **Liveness e readiness separados.** Health que reinicia a aplicação por causa de banco fora do ar → `WARNING`.
+- **Mudança de deploy sem gatilho de rollback escrito** → `WARNING`.
+- **Limite de taxa (rate limit) atrás de proxy** sem IP real → `BLOCKER` se o proxy é o único IP visível.
+- **Listagem nova com N+1** (uma consulta por item) → `BLOCKER`. Exige teste de contagem de queries.
+- **Métrica com id, documento ou e-mail como label** → `WARNING` (cardinalidade).
+
 ## Fluxo de execução
 
 1. Execute o agente `sre` sobre o código implementado (controllers, services, adapters)
