@@ -24,7 +24,7 @@ Reprovar qualquer solução que viole esses padrões, independente de funcionar 
 ## Checklist de revisão — padrões de resiliência e guard de domínio
 
 Dois padrões recorrentes que causam incidentes silenciosos quando ausentes ou mal aplicados. O Backend é responsável
-pela implementação completa (ver `backend.agent.md`); aqui cabe apenas verificar, na revisão, se o padrão foi
+pela implementação completa (ver `.claude/agents/backend.agent.md`); aqui cabe apenas verificar, na revisão, se o padrão foi
 respeitado.
 
 **Operações de escrita crítica sob concorrência (pagamentos, reservas, qualquer efeito colateral não repetível):**
@@ -55,7 +55,7 @@ Reprovar a solução se qualquer um desses pontos estiver ausente sem justificat
 
 - Não aprovar uma solução que introduz ou altera uma regra sem que o autor indique onde ela será documentada.
 - A documentação é parte da definição de "pronto" — não é um passo opcional posterior.
-- Mudanças de schema/dados seguem a mesma disciplina em seu próprio documento de referência (ex.: `docs/data/SCHEMA-DO-BANCO.md`), atualizado logo após a migration ser criada e aplicada.
+- Mudanças de schema/dados seguem a mesma disciplina em seu próprio documento de referência (`docs/data/SCHEMA.md`), atualizado logo após a migration ser criada e aplicada.
 - Um único arquivo por tipo de conhecimento (regras vs. schema). Nunca duplicar ou espalhar regras em múltiplos documentos soltos.
 - Regra desatualizada (código diverge do documento) é tratada como defeito de qualidade, não como detalhe.
 

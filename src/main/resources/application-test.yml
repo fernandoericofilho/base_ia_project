@@ -1,0 +1,8 @@
+# Profile "test": mesmo H2 em memória do default, com logging enxuto — pensado para
+# execução em CI/pipeline (não é o profile usado pelos testes JUnit em si, que já rodam
+# sem profile ativo via application.yml; este é para quem quiser subir a aplicação, não
+# só os testes, num ambiente de CI). Ativar com --spring.profiles.active=test.
+logging:
+  level:
+    root: WARN
+    com.base: INFO

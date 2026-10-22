@@ -25,7 +25,7 @@ O Claude deve sugerir proativamente quando o usuário indicar que terminou a imp
 
 ### Checagem de gates (2026-10-22)
 Antes dos agentes, confirme que nenhum gate foi enfraquecido no diff (REGRAS §2.3 e §11):
-- `coverageFloor` em `gradle.properties` não diminuiu.
+- O piso de cobertura em `build.gradle.kts` (`jacocoTestCoverageVerification`) não diminuiu.
 - `ArchitectureTest.kt` não ganhou `@Disabled`, `allowEmptyShould` novo sem motivo, nem regra removida.
 - `.githooks/pre-commit` não perdeu checagem. Commit com `--no-verify` precisa de justificativa escrita.
 - Nenhum `@Disabled` novo em `src/test` sem issue com data e dono.

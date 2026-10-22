@@ -12,6 +12,7 @@ Arquitetura, padrões, exemplos de como adicionar features, checklist pré-PR.
 - **[DEVELOPER_GUIDE.md](guides/DEVELOPER_GUIDE.md)** — Como desenvolver neste projeto
 - **[CLASSROOM_GUIDE.md](guides/CLASSROOM_GUIDE.md)** — Rápido (1 página), bom para aula
 - **[PLAYBOOK_PR.md](guides/PLAYBOOK_PR.md)** — Fluxo de PR com checklist
+- **[TESTING_RULE.md](guides/TESTING_RULE.md)** — Regra mandatória de testes para mudanças em Service/Repository
 
 ## 🤖 Agents (Code Review IA)
 
@@ -21,7 +22,7 @@ Arquitetura, padrões, exemplos de como adicionar features, checklist pré-PR.
   - Exercício prático
   - **Prompts prontos** para cada persona
 
-As personas de `.claude/agents/` (fonte usada pelo Claude Code) têm seção "Lições de projetos anteriores". As cópias abaixo são de aula e estão em `agents/*.agent.md`:
+**Agents disponíveis** (em `.claude/agents/*.agent.md`; as personas têm seção "Lições de projetos anteriores"):
 - Backend Principal Engineer
 - Staff Tech Lead  
 - Product Owner Tech
@@ -63,7 +64,8 @@ docs/
 ├── guides/
 │   ├── DEVELOPER_GUIDE.md      (Como programar)
 │   ├── CLASSROOM_GUIDE.md      (Para sala de aula)
-│   └── PLAYBOOK_PR.md          (Fluxo de PR)
+│   ├── PLAYBOOK_PR.md          (Fluxo de PR)
+│   └── TESTING_RULE.md         (Regra mandatória de testes)
 ├── technical/
 │   └── ARCHITECTURE_AND_IMPROVEMENTS.md  (Análise técnica)
 ├── agents/

@@ -23,14 +23,25 @@ escrito aqui.
 
 ### 2.1 Guards de domínio (estado terminal / bloqueio de escrita)
 
-Escreva aqui todo guard que bloqueia escrita em entidades com status terminal (ex.: contrato fechado, pedido
-cancelado) assim que ele existir — nunca deixe o código divergir do que está escrito aqui.
+**Task** (2026-07-23): `complete()` e `deactivate()` em `TaskService` são bloqueados se a Task já estiver em
+status terminal (`DONE` ou `CANCELLED`). O guard é um único ponto de checagem — `TaskService.requireNotClosed()`
+— chamado por ambos os métodos, nunca duplicado como `if` solto em cada um. Lança `TaskOperationException` → 422.
+Qualquer novo write path adicionado a `TaskService` (ex.: um futuro `reopen()` ou `rename()`) deve chamar esse
+mesmo guard em vez de reimplementar a checagem.
 
 ### 2.2 Idempotência e isolamento transacional
 
-Escreva aqui toda regra de idempotência (chaves, constraints) e de isolamento transacional (retry, propagação de
-transação) para operações de escrita crítica assim que ela existir — nunca deixe o código divergir do que está
-escrito aqui.
+**Task** (2026-07-23): `POST /api/v1/tasks` **não** usa chave de idempotência. Decisão explícita, não omissão —
+criar uma Task não é uma operação de alto risco de retry como pagamento/estorno (reenviar o mesmo POST duas vezes
+por engano só cria uma segunda Task, sem efeito colateral financeiro ou de negócio grave). Se uma feature futura
+tiver semântica de retry crítico, ela precisa de chave de idempotência própria — não herdar a ausência do Task
+como padrão.
+
+**Concorrência otimista**: `Task.version` (`@Version`) protege `complete()`/`deactivate()` contra escrita
+concorrente. Conflito de versão (`ObjectOptimisticLockingFailureException`) é mapeado para HTTP 409 em
+`GlobalExceptionHandler.handleOptimisticLockingException()`. Toda entidade que sofre escrita concorrente
+(atualização de status, saldo, etc.) deve ter `@Version` e esse mapeamento já cobre qualquer conflito dela — não
+é necessário um handler por entidade.
 
 ### 2.3 Gates de commit e de build (2026-10-22)
 
@@ -45,7 +56,7 @@ Regras que deixam de depender de revisão humana. Cada gate existe para pegar um
   - `@ManyToOne` e `@OneToOne` com `FetchType.LAZY`.
   - Controller não acessa Repository.
   - Service não depende de Controller.
-- **Piso de cobertura no build.** JaCoCo `jacocoTestCoverageVerification` faz parte do `check`. Piso de linha: **70%** (`gradle.properties`, medido em 2026-10-22, ver §11). O piso sobe quando a cobertura sobe; nunca desce para passar build. Excluídos: `ModeloApplication`, `models`, `dtos`, `controllers`, `exceptions`, `config`.
+- **Piso de cobertura no build.** JaCoCo `jacocoTestCoverageVerification` faz parte do `check`. Piso de instrução: **80%** (`jacocoTestCoverageVerification`, mantido pelo remoto; ver §11). O piso sobe quando a cobertura sobe; nunca desce para passar build. Excluídos: `ModeloApplication`, `models`, `dtos`, `controllers`, `exceptions`, `config`.
 - **Fins de linha.** `.gitattributes` força LF em `*.sh`, `gradlew` e `.githooks/*`. Script com CRLF quebra no Linux (`exit 127`).
 - **CI.** `.github/workflows/ci.yml` roda `./gradlew build` e `./gradlew integrationTest` em todo push e pull request. CI não é desligado para passar: teste quebrado se corrige.
 
@@ -53,28 +64,55 @@ Regras que deixam de depender de revisão humana. Cada gate existe para pegar um
 
 ## 3. CICLO DE VIDA DOS STATUS
 
-Escreva aqui cada máquina de estados do domínio (status possíveis, transições permitidas, quem pode disparar cada
-transição) assim que ela existir — nunca deixe o código divergir do que está escrito aqui.
+**Task** (2026-07-23, atualizado 2026-07-23): `TaskStatus` tem três valores — `OPEN` (inicial, toda Task nasce
+assim), `DONE`, `CANCELLED`. Transições implementadas: `OPEN → DONE` via `POST /api/v1/tasks/{id}/complete`,
+`OPEN → CANCELLED` via `POST /api/v1/tasks/{id}/cancel`. `DONE` e `CANCELLED` são terminais: nenhuma transição
+sai deles (guard de 2.1 bloqueia, incluindo o próprio `cancel` — não dá pra cancelar uma Task já `DONE`).
+Desativação (`DELETE /api/v1/tasks/{id}`, soft delete) é ortogonal ao `status` — não muda o status, só marca
+`active = false`.
 
 ---
 
 ## 4. BANCO DE DADOS
 
-- **Flyway + PostgreSQL (2026-10-22).** Flyway 10+ traz o suporte ao PostgreSQL no módulo `org.flywaydb:flyway-database-postgresql`, que é dependência de runtime do projeto. Sem ele, o `integrationTest` falha com `Unsupported Database: PostgreSQL 16.x`. Versão gerenciada pelo Spring Boot BOM.
-- **Política de migration (2026-10-22):** baseline + `V(n+1)`. Migration aplicada nunca é editada. Enquanto não houver dado real, consolidar é permitido; depois, só migration nova. Antes de consolidar, contar linhas (inclusive seeds de catálogo) antes e depois.
-- **Dado de teste e demo fora de `db/migration`** (`scripts/seed/` ou endpoint).
-- **Dinheiro**: `NUMERIC(19,2)`, nunca `FLOAT`/`DOUBLE PRECISION`. Ver §2.3 e o teste de arquitetura.
+- **Flyway + PostgreSQL (2026-10-22).** Flyway 10+ traz o suporte ao PostgreSQL no módulo `org.flywaydb:flyway-database-postgresql`, dependência do projeto. Sem ele, o `integrationTest` falha com `Unsupported Database: PostgreSQL 16.x`.
 
-Escreva aqui as convenções de migration, nomenclatura de colunas e colunas de auditoria padrão assim que elas
-existirem — nunca deixe o código divergir do que está escrito aqui. Detalhe de schema propriamente dito (tabelas,
-colunas, índices) vive em `docs/data/SCHEMA.md`, não aqui.
+Convenções de migration, nomenclatura e checklist completo vivem em `docs/data/SCHEMA.md` (que também descreve o
+schema atual tabela por tabela) — este documento não duplica aquele conteúdo.
+
+**Profiles de execução** (2026-07-23, atualizado com `dev`/`test`/`prod` em 2026-07-23):
+- **Default (dia a dia / aula)**: H2 em memória, `application.yml`, sem dependência externa.
+- **`dev`**: mesmo H2 do default, só ativa log SQL do Hibernate (`application-dev.yml`).
+- **`postgres`** (opcional): `docker compose up -d` sobe um Postgres 16 local (ver `docker-compose.yml`), e
+  `./gradlew bootRun --args='--spring.profiles.active=postgres'` ativa `application-postgres.yml`, que só troca o
+  datasource — as mesmas migrations Flyway (`V1`, `V2`, ...) rodam em todos os caminhos sem alteração.
+- **`test`**: mesmo H2, log enxuto — pensado para subir a aplicação (não os testes JUnit) num pipeline de CI.
+- **`prod`**: Postgres via variáveis de ambiente obrigatórias (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`,
+  `DB_PASSWORD`) — `application-prod.yml` não define nenhum valor default de credencial, seguindo a regra "No
+  hardcoded values". `management.endpoint.health.show-details` vira `never` neste profile (nunca expor detalhe
+  de health check publicamente em produção).
+- Testes de integração (`./gradlew integrationTest`) usam um caminho à parte, Postgres efêmero via Testcontainers
+  — independente do container do `docker-compose.yml`. **Limitação conhecida**: falha em Windows com Docker
+  Desktop usando `npipe` nativo (erro de negociação de versão de API) — ver troubleshooting em
+  `docs/guides/DEVELOPER_GUIDE.md`.
 
 ---
 
 ## 5. TRATAMENTO DE ERROS
 
-Escreva aqui a tabela de mapeamento exceção → HTTP status → mensagem assim que ela existir — nunca deixe o código
-divergir do que está escrito aqui.
+Mapeamento aplicado por `GlobalExceptionHandler` (`src/main/kotlin/com/base/api/error/GlobalExceptionHandler.kt`),
+atualizado em 2026-07-23:
+
+| Exceção | HTTP | Observação |
+|---|---|---|
+| `MethodArgumentNotValidException` (Bean Validation) | 400 | resposta detalhada por campo (`ValidationErrorResponse`) |
+| `ResourceNotFoundException` (`BusinessException`, statusCode=404) | 404 | ex.: Task não encontrada |
+| `TaskOperationException` (`BusinessException`, statusCode=422) | 422 | guard de status terminal (seção 2.1) |
+| `ObjectOptimisticLockingFailureException` | 409 | conflito de `@Version` (seção 2.2) |
+| Qualquer outra `Exception` não mapeada | 500 | stack trace só no log, nunca no corpo da resposta |
+
+Toda nova exceção de domínio deve estender `BusinessException` com o `statusCode` correto — não criar um
+`@ExceptionHandler` novo a menos que o tipo não seja uma `BusinessException` (como no caso do optimistic lock).
 
 ---
 
@@ -120,20 +158,42 @@ aqui.
 
 ## 10. OBSERVABILIDADE
 
-Escreva aqui os endpoints de health/métricas expostos, os timers e counters obrigatórios por operação crítica, o
-mecanismo de rastreamento (trace id, MDC) e os jobs agendados existentes (cron, escopo, o que cada um faz) assim que
-existirem — nunca deixe o código divergir do que está escrito aqui.
+**Endpoints** (2026-07-23): `/actuator/health`, `/actuator/prometheus`, `/actuator/metrics` — expostos em
+`application.yml`. Em `prod`, `management.endpoint.health.show-details` é `never` (nunca detalhar publicamente).
+
+**Timers e counters por operação** (2026-07-23): toda operação de escrita de `TaskService` passa por
+`withMetrics(action, block)`, que registra `task.<action>.timer` (duração) e `task.<action>.count` (contador,
+tag `status=ok|error`) — `task.create.*`, `task.complete.*`, `task.cancel.*`, `task.deactivate.*`. Nenhum método
+deve instrumentar métrica manualmente fora desse helper único (mesmo princípio do guard único da seção 2.1: um
+ponto de instrumentação, não um por método). Verificado manualmente em `/actuator/prometheus`
+(`task_create_count_total`, `task_create_timer_seconds`, etc.).
+
+**Rastreamento**: `TraceIdFilter` (`com.base.config`) injeta `traceId` no MDC a partir do header `X-Trace-Id`
+recebido (ou gera um novo), presente em toda linha de log via `logback-spring.xml`.
+
+**Jobs agendados**: nenhum ainda.
 
 ---
 
 ## 11. TESTES
 
-- **Dois tipos, dois comandos.** `./gradlew test` roda unitário e teste de arquitetura, sem Docker. `./gradlew integrationTest` roda teste com Postgres real via Testcontainers (exige Docker). Integração **não** entra no `test`.
-- **Nome de cenário**: todo teste que reproduz uma correção ou regra tem comentário `// TEST-<AREA>-NN: cenário e comportamento esperado`. Deve falhar sem a correção e passar com ela.
-- **Mudança em Service ou Repository exige teste no mesmo commit** (gate do pre-commit, ver §2.3). Política completa em `TESTING_RULE.md`.
-- **Piso de cobertura de linha: 70%**, em `gradle.properties` (`coverageFloor`), verificado pelo `check` (JaCoCo). Medido em 2026-10-22: 114 de 159 linhas cobertas (71,7%), sem `controllers`, `models`, `dtos`, `exceptions`, `config` e `ModeloApplication` (ver `build.gradle.kts`). Meta do CLAUDE.md: 90%. O piso sobe junto com a cobertura e nunca desce para passar build.
-- **Teste de arquitetura** (ArchUnit) faz parte do unitário. Ver §2.3 para a lista de regras.
-- **Teste desabilitado não entra na branch principal** sem issue com data e dono.
+**Gates de teste** (2026-10-22):
+- **Mudança em Service ou Repository exige teste no mesmo commit** (gate do pre-commit, ver §2.3). Política em `TESTING_RULE.md`.
+- **Teste de arquitetura** (ArchUnit, `ArchitectureTest`) faz parte do `./gradlew test`. Regras em §2.3.
+- **Teste desabilitado não entra na branch principal** sem issue com data e dono. O pre-commit bloqueia `@Disabled` novo.
+
+**Separação** (2026-07-23): `./gradlew test` roda testes unitários (exclui a tag `integration`);
+`./gradlew integrationTest` roda os testes de integração com Postgres real via Testcontainers (requer Docker,
+não bloqueia `./gradlew build`/`check`).
+
+**Convenção de cenário**: comentário `TEST-<AREA>-NN` acima do teste, descrevendo o cenário e por que ele existe
+(qual comportamento quebra se o teste for removido) — ex.: `TEST-TASK-01`, `TEST-ERROR-04`.
+
+**Piso de cobertura**: 80% de instrução (`INSTRUCTION`/`COVEREDRATIO`), verificado por
+`jacocoTestCoverageVerification` (JaCoCo), ligado à task `check` — `./gradlew build` falha se a cobertura cair
+abaixo do piso. Excluídos da régua (sem lógica de negócio a testar): `models`, `dtos`, `controllers/request`,
+`controllers/response`, `config`, `exceptions`, `ModeloApplication`, e os DTOs de resposta de erro
+(`ErrorResponse`, `FieldError`, `ValidationErrorResponse`). Cobertura real em 2026-07-23: 91.7%.
 
 ---
 

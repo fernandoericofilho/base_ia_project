@@ -27,7 +27,7 @@ projects (`./bootstrap.sh` to run tests, `./bootstrap.sh --run` to also start th
 # Integration tests (Postgres via Testcontainers; requires Docker)
 ./gradlew integrationTest
 
-# Build (includes check: tests + JaCoCo coverage floor 70%)
+# Build (includes check: tests + JaCoCo coverage floor 80%)
 ./gradlew build
 
 # Convenience script: runs tests, and with --run also starts the app
@@ -88,16 +88,16 @@ hard defaults; only relax one if the new project has a documented reason to.
   under real concurrency (payments, balance updates), separate a thin non-transactional facade that owns the retry
   policy from an inner service whose methods run in a fresh transaction per attempt (e.g. Spring's
   `Propagation.REQUIRES_NEW`) — retrying inside the same transaction that just failed is the usual way this goes
-  wrong. See `backend.agent.md` for the implementation pattern; `techlead.agent.md` reviews for its presence.
+  wrong. See `.claude/agents/backend.agent.md` for the implementation pattern; `.claude/agents/techlead.agent.md` reviews for its presence.
 - **Terminal-state guard on domain entities** — any entity with a "closed"/terminal status (settled, cancelled,
   archived) needs one single guard checked by every write path, throwing a domain exception mapped to 422, not a
   duplicated `if` per service method. Reopening the entity must remain possible; the guard blocks business writes,
-  not the status transition itself. See `backend.agent.md` for the implementation pattern; `techlead.agent.md`
+  not the status transition itself. See `.claude/agents/backend.agent.md` for the implementation pattern; `.claude/agents/techlead.agent.md`
   reviews for its presence.
 - **LAZY loading everywhere** — every `@ManyToOne`/`@OneToOne` (or ORM equivalent) uses lazy fetch. Never eager by
   default.
-- **Coverage floor enforced by the build** — this template's build enforces 70% line coverage (JaCoCo, measured
-  2026-10-22 at 71.7%; target 90%; see `docs/architecture/REGRAS-DO-SISTEMA.md` §11) and exclude only what genuinely shouldn't count (models, DTOs,
+- **Coverage floor enforced by the build** — this template's build enforces 80% instruction coverage (JaCoCo;
+  see `docs/architecture/REGRAS-DO-SISTEMA.md` §11) and exclude only what genuinely shouldn't count (models, DTOs,
   controllers if they're pure pass-through, exceptions, config, adapters to third parties).
 
 ## Naming Conventions

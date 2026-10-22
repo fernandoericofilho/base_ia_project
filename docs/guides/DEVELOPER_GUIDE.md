@@ -19,6 +19,41 @@ Ou use o script:
 
 App estará em `http://localhost:8080`
 
+## Rodando com Postgres real (Docker)
+
+Por padrão a aplicação usa H2 em memória (`application.yml`) — nenhuma dependência externa, ideal pra exercícios
+rápidos de aula. Quando quiser rodar contra um Postgres real (mais parecido com produção):
+
+```bash
+docker compose up -d          # sobe Postgres em localhost:5432 (db "modelo", user/senha "app")
+./gradlew bootRun --args='--spring.profiles.active=postgres'
+```
+
+O profile `postgres` (`application-postgres.yml`) só troca o datasource — o Flyway aplica as mesmas migrations
+(`V1`, `V2`, ...) automaticamente na subida, contra o Postgres real. Para parar e apagar os dados:
+
+```bash
+docker compose down -v
+```
+
+## Profiles de ambiente
+
+| Profile | Quando usar | Banco |
+|---|---|---|
+| *(nenhum, default)* | Dia a dia / aula | H2 em memória |
+| `dev` | Depuração local, quer ver o SQL gerado pelo Hibernate no log | H2 em memória (mesmo do default, só muda o nível de log) |
+| `postgres` | Testar contra Postgres real via Docker Compose (ver seção acima) | Postgres local (`docker-compose.yml`) |
+| `test` | Subir a aplicação (não os testes JUnit, que já rodam sem profile) num ambiente de CI, com log enxuto | H2 em memória |
+| `prod` | Deploy real | Postgres via variáveis de ambiente (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`, `DB_PASSWORD`) — **nunca** credenciais hardcoded |
+
+```bash
+./gradlew bootRun --args='--spring.profiles.active=dev'
+
+# prod: variáveis de ambiente são obrigatórias, sem default de usuário/senha
+DB_HOST=meu-host DB_NAME=modelo DB_USERNAME=... DB_PASSWORD=... \
+  ./gradlew bootRun --args='--spring.profiles.active=prod'
+```
+
 ## Arquitetura
 
 ```
@@ -272,7 +307,7 @@ fun toEntity(dto: HelloDTO): GreetingRecord =
 
 ## Agents (Code Review)
 
-Disponível em `agents/` para orientar revisões:
+Disponível em `.claude/agents/` para orientar revisões (também usáveis como subagents reais do Claude Code via `agentType`):
 
 - **backend.agent.md** — Kotlin, Spring, design patterns
 - **qa.agent.md** — Testes e casos de borda
@@ -356,6 +391,34 @@ Verifique:
 - [ ] `@Valid` está no `@RequestBody`?
 - [ ] Request DTO tem annotations de validação?
 - [ ] Sem tratamento global de erro? → Ver seção "Global Error Handler" em TODO
+
+### `docker compose up -d` sobe, mas `bootRun --spring.profiles.active=postgres` dá erro de autenticação
+
+Sintoma: a aplicação falha ao subir com algo como `FATAL: autenticação do tipo password falhou para usuário "app"`,
+mesmo com `docker compose ps` mostrando o container saudável. Causa mais comum: **já existe outro Postgres rodando
+na porta 5432 nesta máquina** (um Postgres nativo instalado localmente, por exemplo) — a conexão da aplicação vai
+para esse outro Postgres, não para o container, e falha por credenciais diferentes.
+
+Como confirmar: veja se há mais de um processo escutando na porta 5432 (`netstat -ano | findstr :5432` no
+Windows, ou `lsof -i :5432` no Linux/Mac). Se houver, mude o mapeamento de porta no `docker-compose.yml`
+(ex.: `"5433:5432"`) e aponte `spring.datasource.url` em `application-postgres.yml` para a nova porta.
+
+### `./gradlew integrationTest` falha com `client version 1.32 is too old` (Windows + Docker Desktop)
+
+Sintoma: o Testcontainers falha ao subir o Postgres efêmero com
+`com.github.dockerjava.api.exception.BadRequestException: Status 400: client version 1.32 is too old. Minimum
+supported API version is 1.40`, mesmo com `docker version` mostrando uma API bem mais nova.
+
+Causa conhecida: no Windows, com o Docker Desktop usando o named pipe nativo (`npipe`), o cliente Docker
+embutido no Testcontainers às vezes negocia uma versão de API antiga e fixa, incompatível com Docker Engines mais
+recentes. Não é um problema deste projeto nem das migrations/Flyway — H2 e Postgres via `docker compose`
+continuam funcionando normalmente, só a via de teste com Testcontainers é afetada.
+
+Mitigação conhecida (não garantida em toda instalação): habilitar a integração do Docker Desktop com WSL2
+(*Settings → Resources → WSL Integration*) e rodar o Gradle a partir de dentro da distro WSL2, em vez do
+Windows nativo — isso troca o transporte de `npipe` para socket Unix, que o Testcontainers negocia de forma mais
+confiável. Se isso não resolver, trate como um bloqueio conhecido de ambiente e prefira rodar
+`./gradlew integrationTest` em CI (Linux) em vez de localmente no Windows.
 
 ## Dependências Principais
 

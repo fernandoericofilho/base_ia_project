@@ -9,6 +9,50 @@ plugins {
     jacoco
 }
 
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+val jacocoExcludes = listOf(
+    "**/models/**",
+    "**/dtos/**",
+    "**/controllers/request/**",
+    "**/controllers/response/**",
+    "**/config/**",
+    "**/exceptions/**",
+    "**/ModeloApplication*",
+    // DTOs de resposta de erro (sem lógica, só carregam dado) — mesmo critério dos
+    // outros DTOs acima, apesar de viverem no pacote api/error junto do handler real.
+    "**/api/error/ErrorResponse*",
+    "**/api/error/FieldError*",
+    "**/api/error/ValidationErrorResponse*"
+)
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+    classDirectories.setFrom(
+        files(classDirectories.files.map { fileTree(it) { exclude(jacocoExcludes) } })
+    )
+}
+
+tasks.jacocoTestCoverageVerification {
+    dependsOn(tasks.jacocoTestReport)
+    classDirectories.setFrom(tasks.jacocoTestReport.get().classDirectories)
+    violationRules {
+        rule {
+            limit {
+                counter = "INSTRUCTION"
+                value = "COVEREDRATIO"
+                minimum = "0.80".toBigDecimal()
+            }
+        }
+    }
+}
+
 group = "com.base"
 version = "0.0.1-SNAPSHOT"
 
@@ -29,11 +73,14 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("io.micrometer:micrometer-registry-prometheus")
     implementation("org.flywaydb:flyway-core")
+    // Flyway 10+ modularizou o suporte a bancos por módulo separado do flyway-core.
+    implementation("org.flywaydb:flyway-database-postgresql")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     runtimeOnly("com.h2database:h2")
-    // Flyway 10+: suporte ao PostgreSQL vive neste módulo (sem ele: "Unsupported Database: PostgreSQL 16.x").
-    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+    // Postgres real (profile "postgres", ver docker-compose.yml) — H2 continua o default do dia a dia.
+    runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(kotlin("test"))
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
@@ -42,9 +89,9 @@ dependencies {
 
     // Testes de integracao (Testcontainers) - app continua em H2 no dia a dia;
     // Postgres real e usado apenas nesta camada de teste, via Docker.
-    testImplementation("org.testcontainers:junit-jupiter:1.20.4")
-    testImplementation("org.testcontainers:postgresql:1.20.4")
-    testRuntimeOnly("org.postgresql:postgresql")
+    testImplementation("org.testcontainers:junit-jupiter:1.21.3")
+    testImplementation("org.testcontainers:postgresql:1.21.3")
+    // driver Postgres já vem via runtimeOnly acima, herdado pelo classpath de teste
 }
 
 tasks.withType<KotlinCompile> {
@@ -72,52 +119,7 @@ tasks.register<Test>("integrationTest") {
 }
 
 
-// Cobertura de linha (REGRAS §11, 2026-10-22). Conta só o `test` (unitário); integração não entra.
-jacoco {
-    toolVersion = "0.8.12"
-}
-
-// Fora do cálculo: código sem regra própria (REGRAS §11). Controllers são pass-through,
-// cobertos pelo integrationTest, então não contam no piso do `test`.
-val coverageExcludes = listOf(
-    "com/base/ModeloApplication*",
-    "com/base/models/**",
-    "com/base/dtos/**",
-    "com/base/controllers/**",
-    "com/base/exceptions/**",
-    "com/base/config/**",
-)
-
-val coverageClassDirectories = provider {
-    sourceSets.main.get().output.classesDirs.asFileTree.matching { exclude(coverageExcludes) }
-}
-
-tasks.test {
-    finalizedBy(tasks.jacocoTestReport)
-}
-
-tasks.jacocoTestReport {
-    classDirectories.setFrom(coverageClassDirectories)
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-}
-
-tasks.jacocoTestCoverageVerification {
-    dependsOn(tasks.test)
-    classDirectories.setFrom(coverageClassDirectories)
-    violationRules {
-        rule {
-            limit {
-                counter = "LINE"
-                value = "COVEREDRATIO"
-                minimum = providers.gradleProperty("coverageFloor").get().toBigDecimal()
-            }
-        }
-    }
-}
-
+// Piso de cobertura enforced pelo build (REGRAS §11): sem isso, jacocoTestCoverageVerification não roda no check.
 tasks.check {
     dependsOn(tasks.jacocoTestCoverageVerification)
 }

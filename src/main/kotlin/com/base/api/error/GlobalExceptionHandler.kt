@@ -4,6 +4,7 @@ import com.base.exceptions.BusinessException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.orm.ObjectOptimisticLockingFailureException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -75,6 +76,32 @@ class GlobalExceptionHandler {
         )
 
         return ResponseEntity(response, httpStatus)
+    }
+
+    /**
+     * Trata conflito de concorrência otimista (@Version) — ver docs/data/SCHEMA.md,
+     * seção "Concorrência otimista"
+     */
+    @ExceptionHandler(ObjectOptimisticLockingFailureException::class)
+    fun handleOptimisticLockingException(
+        ex: ObjectOptimisticLockingFailureException,
+        request: WebRequest
+    ): ResponseEntity<ErrorResponse> {
+        log.warn(
+            "action=optimistic_lock_conflict status=conflict message={} path={}",
+            ex.message,
+            request.getDescription(false)
+        )
+
+        val response = ErrorResponse(
+            timestamp = LocalDateTime.now(),
+            status = HttpStatus.CONFLICT.value(),
+            error = HttpStatus.CONFLICT.reasonPhrase,
+            message = "O recurso foi modificado por outra operação. Recarregue e tente novamente.",
+            path = request.getDescription(false).removePrefix("uri=")
+        )
+
+        return ResponseEntity(response, HttpStatus.CONFLICT)
     }
 
     /**
